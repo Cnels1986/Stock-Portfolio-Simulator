@@ -9,8 +9,16 @@
   <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-    <h1>This is the dashboard template</h1>
+  <div class="navbar">
+    <div class="stocklinks">
+      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
+      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+    </div>
     <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+  <div class="dashboard">
+    <h2>Welcome {{user[1]}}</h2>
+    <h3>You have: ${{money[0]}}</h3>
   </div>
 </body>
 </html>

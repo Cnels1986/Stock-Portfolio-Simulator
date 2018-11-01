@@ -1,13 +1,16 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flaskext.mysql import MySQL
 from passlib.hash import sha256_crypt
+from functools import wraps
 from MySQLdb import escape_string as thwart
 import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 mysql = MySQL()
 
 name = ''
+id = ''
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -18,13 +21,61 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
-@app.route('/')
-def index():
-    return render_template("dashboard.html")
+# function checks the session loggin in status to see if user is logged in, if not it redirects them to the login page
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first")
+            return redirect(url_for('login'))
+    return wrap
 
-@app.route('/login')
+#####################
+
+@app.route('/')
+@login_required
+def index():
+    cursor.execute("SELECT username, name FROM Users WHERE username = (%s)", name)
+    user = cursor.fetchone();
+    cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+    money = cursor.fetchone();
+    return render_template("dashboard.html", user=user, money=money)
+
+#####################
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    errorName = None
+    errorPass = None
+    if request.method == "POST":
+        # retrieves input from the login form
+        username = request.form["userName"]
+        password = request.form["password"]
+
+        cursor.execute("SELECT * FROM Users WHERE username = (%s)", thwart(username))
+        # retrieves hashed password from the Users table
+        user = cursor.fetchone()
+
+        # user name does not exist within the Users table
+        if user == None:
+            errorName = "Username does not exist"
+        else:
+            if sha256_crypt.verify(request.form["password"], user[2]):
+                session['logged_in'] = True
+                session['username'] = username
+                session.permanent = True
+                flash("You are now logged in")
+                global name
+                name = username
+                return redirect(url_for('index'))
+            else:
+                errorPass = "Incorrect password"
+
+    return render_template('login.html', errorName=errorName, errorPass=errorPass)
+
+#####################
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -49,19 +100,41 @@ def register():
             conn.commit()
             conn.close()
             # sets the session so user is now logged in to the app
-            # session['logged_in'] = True
-            # session['username'] = username
-            # session.permanent = True
-            # flash("Thank you for registering")
+            session['logged_in'] = True
+            session['username'] = username
+            session.permanent = True
+            flash("Thank you for registering")
+            global name
+            name = username
             return redirect(url_for('index'))
         else:
             error = "Username already exists"
 
     return render_template('register.html', error=error)
 
+#####################
+
+@app.route('/buy')
+@login_required
+def buystock():
+    return "This will be where you buy stocks"
+
+#####################
+
+@app.route('/sell')
+@login_required
+def sellstock():
+    return "This will be where you sell stocks"
+
+#####################
+
+# the route clears the session and redirects user to the login page, thus logging the out
 @app.route('/logout')
+@login_required
 def logout():
-    return "This is the logout"
+    session.clear()
+    flash("You are now logged out")
+    return redirect(url_for('login'))
 
 
 if __name__ == "__main__":
