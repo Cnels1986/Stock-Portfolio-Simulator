@@ -1,0 +1,11 @@
+{% extends 'buy.html' %}
+
+{% block content %}
+  <div class="searchForm formBackground">
+      <h2>{{ stockInfo[0] }}</h2>
+      <h3>Company: {{ stockInfo[1] }}</h3>
+      <h3>Current Price: {{ stockInfo[2] }}</h3>
+      <h4>Exchange: {{ stockInfo[3] }} </h4>
+      <h4>Description: {{ stockInfo[4] }}</h4>
+  </div>
+{% endblock %}

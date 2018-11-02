@@ -4,6 +4,8 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 from MySQLdb import escape_string as thwart
 import os
+import requests
+import json
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -20,6 +22,8 @@ mysql.init_app(app)
 
 conn = mysql.connect()
 cursor = conn.cursor()
+
+#####################
 
 # function checks the session loggin in status to see if user is logged in, if not it redirects them to the login page
 def login_required(f):
@@ -113,18 +117,36 @@ def register():
     return render_template('register.html', error=error)
 
 #####################
+# https://api.iextrading.com/1.0/stock/aapl/price
+# https://api.iextrading.com/1.0/stock/aapl/company
 
-@app.route('/buy')
+@app.route('/buy', methods=['GET', 'POST'])
 @login_required
 def buystock():
-    return "This will be where you buy stocks"
+    error = None
+    if request.method == 'POST':
+        stock = request.form['searchStock']
+        price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock))
+        stockPrice = json.loads(price.text)
+        company = requests.get("https://api.iextrading.com/1.0/stock/{}/company".format(stock))
+        companyInfo = json.loads(company.text)
+
+        stockInfo = []
+        stockInfo.append(companyInfo['symbol'])
+        stockInfo.append(companyInfo['companyName'])
+        stockInfo.append(stockPrice)
+        stockInfo.append(companyInfo['exchange'])
+        stockInfo.append(companyInfo['description'])
+
+        return render_template("showstock.html", stockInfo=stockInfo)
+    return render_template('buy.html')
 
 #####################
 
 @app.route('/sell')
 @login_required
 def sellstock():
-    return "This will be where you sell stocks"
+    return render_template('sell.html')
 
 #####################
 
