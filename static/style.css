@@ -58,5 +58,66 @@ body{
 
 .searchForm{
   width: 1000px;
-  height:400px;
+  /* height:400px; */
+}
+
+.stockDisplay{
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+}
+
+.stockPrice{
+  width: 65%;
+  padding: 30px 0px 40px 40px;
+}
+
+.stockPrice > h3{
+  text-align: center;
+  padding: 20px;
+}
+
+.stockPrice > p{
+  margin: 10px 0px 0px 0px;
+}
+
+.stockPrice > h1{
+  padding: 0px 20px;
+}
+
+.stockPrice > h2{
+  padding: 0px 20px;
+  font-size: 20px;
+}
+
+.stockInfo{
+  width: 35%;
+  border-left: 1px solid black;
+  padding: 40px 0px 40px 20px;
+  margin: 20px;
+}
+
+.stockInfo > h3{
+  font-size: 16px;
+}
+
+.stockInfo > h4{
+  font-size: 14px;
+  width: 80%;
+}
+
+.stock{
+  background-color: #EFEFEF;
+  margin: 0 auto;
+  margin-top: 40px;
+  text-align: center;
+  padding-bottom: 50px;
+}
+
+.stockSearch{
+  padding: 20px;
+}
+
+#price{
+  visibility: hidden;
 }

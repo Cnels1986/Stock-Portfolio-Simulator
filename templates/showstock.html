@@ -1,11 +1,54 @@
-{% extends 'buy.html' %}
-
-{% block content %}
-  <div class="searchForm formBackground">
-      <h2>{{ stockInfo[0] }}</h2>
-      <h3>Company: {{ stockInfo[1] }}</h3>
-      <h3>Current Price: {{ stockInfo[2] }}</h3>
-      <h4>Exchange: {{ stockInfo[3] }} </h4>
-      <h4>Description: {{ stockInfo[4] }}</h4>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <title>Stock Portfolio Simulator - Buy Stock</title>
+  <link rel="stylesheet" href="../static/style.css">
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  <script src="static/script.js"></script>
+</head>
+<body>
+  <div class="navbar">
+    <div class="stocklinks">
+      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
+      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+    </div>
+    <div>
+      <a href="{{ url_for('index') }}">Dashboard</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
   </div>
-{% endblock %}
+  <div class="errorMessage">
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+  </div>
+  <div class="stock">
+    <div class="stockDisplay">
+      <div class="stockPrice">
+        <h1 id="stock">{{ stockInfo[0] }}</h1>
+        <p>Company:</p>
+        <h2> {{ stockInfo[1] }}</h2>
+        <h3>Current Price: ${{ stockInfo[2] }}</h3>
+      </div>
+      <div class="stockInfo">
+        <h3>{{ stockInfo[3] }} </h3>
+        <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
+      </div>
+    </div>
+    <form method="post">
+      <p id="price">{{stockInfo[2]}}</p>
+      <label>How many would you like to buy?</label>
+      <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" required  />
+      <button type="submit" id="purchaseButton">Purchase</button>
+    </form>
+  </div>
+</body>
+</html>

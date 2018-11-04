@@ -3,6 +3,7 @@ from flaskext.mysql import MySQL
 from passlib.hash import sha256_crypt
 from functools import wraps
 from MySQLdb import escape_string as thwart
+from decimal import Decimal
 import os
 import requests
 import json
@@ -13,6 +14,7 @@ mysql = MySQL()
 
 name = ''
 id = ''
+info = ''
 
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -102,7 +104,7 @@ def register():
             userID = cursor.fetchone()
             cursor.execute("INSERT INTO Wallet(user_id, money) VALUES(%s, 25000)", (int(userID[0])))
             conn.commit()
-            conn.close()
+            # conn.close()
             # sets the session so user is now logged in to the app
             session['logged_in'] = True
             session['username'] = username
@@ -117,8 +119,6 @@ def register():
     return render_template('register.html', error=error)
 
 #####################
-# https://api.iextrading.com/1.0/stock/aapl/price
-# https://api.iextrading.com/1.0/stock/aapl/company
 
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
@@ -131,6 +131,7 @@ def buystock():
         company = requests.get("https://api.iextrading.com/1.0/stock/{}/company".format(stock))
         companyInfo = json.loads(company.text)
 
+        # creates a list to send to the stocks page, stores the symbol, name, price, exchange, description
         stockInfo = []
         stockInfo.append(companyInfo['symbol'])
         stockInfo.append(companyInfo['companyName'])
@@ -138,8 +139,53 @@ def buystock():
         stockInfo.append(companyInfo['exchange'])
         stockInfo.append(companyInfo['description'])
 
-        return render_template("showstock.html", stockInfo=stockInfo)
+        # gather stock information to check the stocks table
+        name = companyInfo['companyName']
+        symbol = companyInfo['symbol']
+        cursor.execute("SELECT * FROM Stocks WHERE symbol = (%s)", symbol)
+        s = cursor.fetchone()
+        # stock is currently not in the stocks table
+        if s == None:
+            cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
+            conn.commit()
+            # conn.close()
+
+
+        # cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
+        # latestStocks = cursor.fetchall()
+        # print(latestStocks)
+        global info
+        info = stockInfo
+        return redirect(url_for('confirm'))
+        # return render_template("showstock.html", stockInfo=stockInfo)
+
     return render_template('buy.html')
+
+#####################
+
+@app.route('/confirm', methods=['GET', 'POST'])
+@login_required
+def confirm():
+    error = ''
+    # gets the information of the stock send and display within the template
+    global info
+    stockInfo = info
+    if request.method == 'POST':
+        quantity = request.form['stockQuantity']
+        symbol = stockInfo[0]
+        price = stockInfo[2]
+        cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+        money = cursor.fetchone();
+        print(money[0])
+        cost = Decimal(quantity) * round(Decimal(price),2)
+        print(cost)
+
+        if cost <= money[0]:
+            return redirect(url_for('buystock'))
+        else:
+            error = "Not enough money to complete purchase"
+
+    return render_template("showstock.html", stockInfo=stockInfo, error=error)
 
 #####################
 
