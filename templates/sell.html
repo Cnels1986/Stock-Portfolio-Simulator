@@ -16,6 +16,23 @@
     </div>
     <a href="{{ url_for('logout') }}">Logout</a>
   </div>
-  <h1>SELL YOUR STOCKS!!!!</h1>
+  <div class="formBackground">
+    {{ name }}
+    {{ money }}
+    {% if portfolio %}
+      {% for stock in portfolio %}
+        <div>
+          <p>{{ stock[1]}}</p>
+          <p>{{ stock[2]}}</p>
+          <p>{{ stock[3]}}</p>
+          <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0])}}>
+            <label for="sellStock">How many would you like to sell?</label>
+            <input type="number" name="sellStock" id="sellStock" ref="sellStock" required  />
+            <button type="submit" id="sellButton">Sell</button>
+          </form>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
 </body>
 </html>

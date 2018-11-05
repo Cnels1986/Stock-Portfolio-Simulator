@@ -38,16 +38,23 @@ def login_required(f):
             return redirect(url_for('login'))
     return wrap
 
+def get_money(userId):
+    cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
+    money = cursor.fetchone()
+    return money[0]
+
 #####################
 
 @app.route('/')
 @login_required
 def index():
-    cursor.execute("SELECT username, name FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", name)
     user = cursor.fetchone();
-    cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
     money = cursor.fetchone();
-    return render_template("dashboard.html", user=user, money=money)
+    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(user[0]))
+    portfolio = cursor.fetchall()
+    return render_template("dashboard.html", user=user, money=money, portfolio=portfolio)
 
 #####################
 
@@ -175,13 +182,22 @@ def confirm():
         symbol = stockInfo[0]
         price = stockInfo[2]
         cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
-        money = cursor.fetchone();
-        print(money[0])
+        money = cursor.fetchone()
         cost = Decimal(quantity) * round(Decimal(price),2)
-        print(cost)
 
         if cost <= money[0]:
-            return redirect(url_for('buystock'))
+            cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
+            stockId = cursor.fetchone()
+            updatedMoney = money[0] - cost
+            cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+            userId = cursor.fetchone()
+            # adds entry to portfolio table of what stocks and how much user bought and at what price
+            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, round(Decimal(price),2)))
+            conn.commit()
+            # updates the Wallet table with the new amount of money
+            cursor.execute("UPDATE Wallet SET money={} WHERE user_id = {}".format(updatedMoney, userId[0]))
+            conn.commit()
+            return redirect(url_for('index'))
         else:
             error = "Not enough money to complete purchase"
 
@@ -192,8 +208,53 @@ def confirm():
 @app.route('/sell')
 @login_required
 def sellstock():
-    return render_template('sell.html')
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    userId = cursor.fetchone()
+    cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(userId[0]))
+    portfolio = cursor.fetchall()
+    money = get_money(userId[0])
+    return render_template('sell.html', portfolio=portfolio, name=name, money=money)
 
+#####################
+
+@app.route('/confirmsale/<username>/<portfolio_id>', methods=['POST'])
+@login_required
+def sell(username, portfolio_id):
+    error = ''
+    if request.method == "POST":
+        quantity = request.form['sellStock']
+        cursor.execute("SELECT amount FROM Portfolio WHERE id = {}".format(portfolio_id))
+        owned = cursor.fetchone()
+        if int(quantity) > owned[0]:
+            return "YOU DON'T OWN THAT MANY"
+        else:
+            # retrieves stock symbol that the user is selling
+            cursor.execute("SELECT Stocks.symbol FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE Portfolio.id = {}".format(portfolio_id))
+            symbol = cursor.fetchone()
+            # gets updated stock price
+            price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(symbol[0]))
+            currentPrice = json.loads(price.text)
+
+            cursor.execute("SELECT id FROM Users WHERE username = (%s)", username)
+            temp = cursor.fetchone()
+            userId = temp[0]
+
+            total = int(quantity) * currentPrice
+            cursor.execute("SELECT money FROM Wallet WHERE id = {}".format(userId))
+            money = cursor.fetchone()
+            # updates money amount with sold stocks amount
+            newMoney = Decimal(total) + money[0]
+            cursor.execute("UPDATE WALLET SET money = {} WHERE user_id = {}".format(newMoney, userId))
+            newAmount = owned[0] - int(quantity)
+
+            if newAmount == 0:
+                cursor.execute("DELETE FROM Portfolio WHERE id = {}".format(portfolio_id))
+                conn.commit()
+            else:
+                cursor.execute("UPDATE Portfolio SET amount = {} WHERE id = {}".format(newAmount, portfolio_id))
+                conn.commit()
+
+    return redirect(url_for('index'))
 #####################
 
 # the route clears the session and redirects user to the login page, thus logging the out

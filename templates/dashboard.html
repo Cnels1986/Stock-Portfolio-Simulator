@@ -17,8 +17,18 @@
     <a href="{{ url_for('logout') }}">Logout</a>
   </div>
   <div class="dashboard formBackground">
-    <h2>Welcome {{user[1]}}</h2>
+    <h2>Welcome {{user[2]}}</h2>
     <h3>You have: ${{money[0]}}</h3>
+    <h3>Your Stocks:</h3>
+    {% if portfolio %}
+      {% for stock in portfolio %}
+        <div>
+          <p>{{ stock[0]}}</p>
+          <p>{{ stock[1]}}</p>
+          <p>{{ stock[2]}}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
 </body>
 </html>
