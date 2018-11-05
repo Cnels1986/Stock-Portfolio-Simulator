@@ -7,29 +7,67 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
   <title>Stock Portfolio Simulator - Buy Stock</title>
   <link rel="stylesheet" href="../static/style.css">
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  <script src="static/script.js"></script>
 </head>
 <body>
   <div class="navbar">
     <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
-      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+      <a href="{{ url_for('buystock' )}}">
+        <div>
+          Buy Stock
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('sellstock' )}}">
+        <div>
+          Sell Stock
+        </div>
+      </a>
     </div>
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="stocklinks">
+      <a href="{{ url_for('index') }}">
+        <div>
+          Dashboard
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('logout') }}">
+        <div>
+          Logout
+        </div>
+      </a>
+    </div>
   </div>
-  <div class="formBackground">
-    {{ name }}
-    {{ money }}
+  <div class="money">
+    <h5>Your Wallet:</h5>
+    <p>${{money}}</p>
+  </div>
+  <div class="formBackground sellContainer">
+    <h2 class="dash_header">${{ money }}</h2>
     {% if portfolio %}
       {% for stock in portfolio %}
-        <div>
-          <p>{{ stock[1]}}</p>
-          <p>{{ stock[2]}}</p>
-          <p>{{ stock[3]}}</p>
-          <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0])}}>
-            <label for="sellStock">How many would you like to sell?</label>
-            <input type="number" name="sellStock" id="sellStock" ref="sellStock" required  />
-            <button type="submit" id="sellButton">Sell</button>
-          </form>
+        <div class="sellStock">
+          <div class="sellStockInfo">
+            <div class="stock_info">
+              <h3>{{ stock[2]}}</h3>
+              <h2 id="stock">{{ stock[1]}}</h2>
+            </div>
+            <div>
+              <h4>You own: {{ stock[3]}}</h4>
+            </div>
+          </div>
+          <div>
+            <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0])}}>
+              <label for="sellStock">How many would you like to sell?</label>
+              <input type="number" name="sellStock" id="sellStock" ref="sellStock" required  />
+              <button type="submit" id="sellButton">Sell</button>
+            </form>
+          </div>
         </div>
       {% endfor %}
     {% endif %}

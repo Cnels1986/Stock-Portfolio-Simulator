@@ -38,10 +38,17 @@ def login_required(f):
             return redirect(url_for('login'))
     return wrap
 
+####################
+
 def get_money(userId):
     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
     money = cursor.fetchone()
     return money[0]
+
+def get_user_id():
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    userId = cursor.fetchone()
+    return userId[0]
 
 #####################
 
@@ -51,7 +58,8 @@ def index():
     cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", name)
     user = cursor.fetchone();
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
-    money = cursor.fetchone();
+    temp = cursor.fetchone();
+    money = round(Decimal(temp[0]), 2)
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(user[0]))
     portfolio = cursor.fetchall()
     return render_template("dashboard.html", user=user, money=money, portfolio=portfolio)
@@ -109,7 +117,7 @@ def register():
             cursor.execute("INSERT INTO Users(username, password, name) VALUES(%s, %s, %s)", (thwart(username), thwart(password), thwart(real_name)))
             cursor.execute("SELECT * FROM Users WHERE userName = '{}'".format(username))
             userID = cursor.fetchone()
-            cursor.execute("INSERT INTO Wallet(user_id, money) VALUES(%s, 25000)", (int(userID[0])))
+            cursor.execute("INSERT INTO Wallet(user_id, money) VALUES(%s, 25000.00)", (int(userID[0])))
             conn.commit()
             # conn.close()
             # sets the session so user is now logged in to the app
@@ -130,43 +138,47 @@ def register():
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
 def buystock():
-    error = None
+    error = ''
     if request.method == 'POST':
         stock = request.form['searchStock']
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock))
-        stockPrice = json.loads(price.text)
-        company = requests.get("https://api.iextrading.com/1.0/stock/{}/company".format(stock))
-        companyInfo = json.loads(company.text)
+        if price.status_code == 404:
+            error = "Stock symbol does not exist"
+        else:
+            stockPrice = json.loads(price.text)
+            company = requests.get("https://api.iextrading.com/1.0/stock/{}/company".format(stock))
+            companyInfo = json.loads(company.text)
 
-        # creates a list to send to the stocks page, stores the symbol, name, price, exchange, description
-        stockInfo = []
-        stockInfo.append(companyInfo['symbol'])
-        stockInfo.append(companyInfo['companyName'])
-        stockInfo.append(stockPrice)
-        stockInfo.append(companyInfo['exchange'])
-        stockInfo.append(companyInfo['description'])
+            # creates a list to send to the stocks page, stores the symbol, name, price, exchange, description
+            stockInfo = []
+            stockInfo.append(companyInfo['symbol'])
+            stockInfo.append(companyInfo['companyName'])
+            stockInfo.append(stockPrice)
+            stockInfo.append(companyInfo['exchange'])
+            stockInfo.append(companyInfo['description'])
 
-        # gather stock information to check the stocks table
-        name = companyInfo['companyName']
-        symbol = companyInfo['symbol']
-        cursor.execute("SELECT * FROM Stocks WHERE symbol = (%s)", symbol)
-        s = cursor.fetchone()
-        # stock is currently not in the stocks table
-        if s == None:
-            cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
-            conn.commit()
-            # conn.close()
+            # gather stock information to check the stocks table
+            name = companyInfo['companyName']
+            symbol = companyInfo['symbol']
+            cursor.execute("SELECT * FROM Stocks WHERE symbol = (%s)", symbol)
+            s = cursor.fetchone()
+            # stock is currently not in the stocks table
+            if s == None:
+                cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
+                conn.commit()
+                # conn.close()
 
 
-        # cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
-        # latestStocks = cursor.fetchall()
-        # print(latestStocks)
-        global info
-        info = stockInfo
-        return redirect(url_for('confirm'))
+            # cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
+            # latestStocks = cursor.fetchall()
+            # print(latestStocks)
+            global info
+            info = stockInfo
+            return redirect(url_for('confirm'))
         # return render_template("showstock.html", stockInfo=stockInfo)
-
-    return render_template('buy.html')
+    id = get_user_id()
+    m = get_money(id)
+    return render_template('buy.html', money=m, error=error)
 
 #####################
 
@@ -183,7 +195,7 @@ def confirm():
         price = stockInfo[2]
         cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
         money = cursor.fetchone()
-        cost = Decimal(quantity) * round(Decimal(price),2)
+        cost = Decimal(quantity) * Decimal(price)
 
         if cost <= money[0]:
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
@@ -192,16 +204,19 @@ def confirm():
             cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
             userId = cursor.fetchone()
             # adds entry to portfolio table of what stocks and how much user bought and at what price
-            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, round(Decimal(price),2)))
+            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, Decimal(price)))
             conn.commit()
             # updates the Wallet table with the new amount of money
-            cursor.execute("UPDATE Wallet SET money={} WHERE user_id = {}".format(updatedMoney, userId[0]))
+            temp = float(updatedMoney)
+            cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId[0]))
             conn.commit()
             return redirect(url_for('index'))
         else:
             error = "Not enough money to complete purchase"
 
-    return render_template("showstock.html", stockInfo=stockInfo, error=error)
+    id = get_user_id()
+    m = get_money(id)
+    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m)
 
 #####################
 
@@ -234,11 +249,11 @@ def sell(username, portfolio_id):
             # gets updated stock price
             price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(symbol[0]))
             currentPrice = json.loads(price.text)
-
+            # gets the user's id
             cursor.execute("SELECT id FROM Users WHERE username = (%s)", username)
             temp = cursor.fetchone()
             userId = temp[0]
-
+            # calculates the price of the sale
             total = int(quantity) * currentPrice
             cursor.execute("SELECT money FROM Wallet WHERE id = {}".format(userId))
             money = cursor.fetchone()
@@ -255,6 +270,7 @@ def sell(username, portfolio_id):
                 conn.commit()
 
     return redirect(url_for('index'))
+
 #####################
 
 # the route clears the session and redirects user to the login page, thus logging the out
@@ -265,6 +281,7 @@ def logout():
     flash("You are now logged out")
     return redirect(url_for('login'))
 
+#####################
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

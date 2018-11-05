@@ -17,13 +17,35 @@
 <body>
   <div class="navbar">
     <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
-      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+      <a href="{{ url_for('buystock' )}}">
+        <div>
+          Buy Stock
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('sellstock' )}}">
+        <div>
+          Sell Stock
+        </div>
+      </a>
     </div>
-    <div>
-      <a href="{{ url_for('index') }}">Dashboard</a>
-      <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="stocklinks">
+      <a href="{{ url_for('index') }}">
+        <div>
+          Dashboard
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('logout') }}">
+        <div>
+          Logout
+        </div>
+      </a>
     </div>
+  </div>
+  <div class="money">
+    <h5>Your Wallet:</h5>
+    <p>${{money}}</p>
   </div>
   <div class="searchForm formBackground">
       <form method="post" class="stockSearch">
@@ -32,7 +54,9 @@
         <button type="submit">Search</button>
       </form>
       <a href="https://www.google.com/finance" target="_blank">Research Stocks</a>
-
   </div>
+  {% if error %}
+  <p class="loggedInError">{{ error }}</p>
+  {% endif %}
 </body>
 </html>

@@ -41,15 +41,25 @@ body{
 }
 
 .navbar{
-  height: 30px;
+  height: 40px;
   width: 100%;
   background-color: #EFEFEF;
   box-shadow: 5px 5px 15px;
 }
 
-.stocklinks > a{
-  padding-right: 30px;
+.navbar > p{
+  padding: 0px;
 }
+
+.stocklinks{
+  display: flex;
+}
+
+.stocklinks > a{
+  padding: 0px 15px 5px;
+  color: black;
+}
+
 
 .dashboard{
   height: 800px;
@@ -58,7 +68,11 @@ body{
 
 .searchForm{
   width: 1000px;
-  /* height:400px; */
+  padding: 20px;
+}
+
+.searchForm > a{
+  color: black;
 }
 
 .stockDisplay{
@@ -112,6 +126,7 @@ body{
   margin-top: 40px;
   text-align: center;
   padding-bottom: 50px;
+  width: 90%;
 }
 
 .stockSearch{
@@ -120,4 +135,104 @@ body{
 
 #price{
   visibility: hidden;
+}
+
+.stockTitle{
+  text-align: left;
+  font-size: 30px;
+  font-weight: bold;
+  padding: 10px 0px 20px 25px;
+}
+
+.dash_stock_info{
+  margin: 0 auto;
+  border-bottom: 1px solid black;
+  width: 60%;
+  padding-top: 15px;
+}
+
+.dash_stock_info > h2{
+  font-size: 20px;
+}
+
+.dash_header{
+  padding: 18px;
+}
+
+.sellStock{
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin: 0 auto;
+  padding: 15px;
+  border-bottom: 1px solid black;
+}
+
+.sellContainer{
+  width: 1000px;
+}
+
+.sellStockInfo > div > h3{
+  font-size: 14px;
+}
+
+.sellStockInfo > div > h2{
+  font-size: 20px;
+}
+
+.sellStockInfo{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: left;
+  width: 40%;
+}
+
+.sellStockInfo > div >h4{
+  text-align: right;
+}
+
+.stock_info{
+  width: 60%;
+}
+
+.searchlink{
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+}
+
+.searchFormPadding{
+  padding-bottom: 20px;
+}
+
+.money{
+  background-color: #EFEFEF;
+  height: 60px;
+  width: 160px;
+  border-radius: 10px;
+  margin: 15px 10px;
+  text-align: center;
+}
+
+.money > p{
+  font-size: 24px;
+}
+
+.money > h5{
+  font-size: 12px;
+  padding-top: 4px;
+}
+
+.loggedInError{
+  text-align: center;
+  color: #990404;
+  padding-top: 20px;
+  font-size: 20px;
+}
+
+.flash_messages{
+  text-align: center;
+  padding-top: 20px;
+  font-size: 20px;
 }

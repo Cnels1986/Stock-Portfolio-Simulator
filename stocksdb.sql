@@ -18,7 +18,7 @@ CREATE TABLE `Users` (
 CREATE TABLE `Wallet` (
   `id` int(11) NOT NULL AUTO_INCREMENT UNIQUE,
   `user_id` int(11) NOT NULL UNIQUE,
-  `money` decimal(11) NOT NULL,
+  `money` decimal(10,2) NOT NULL,
   PRIMARY KEY(`id`),
   FOREIGN KEY(`user_id`) REFERENCES Users(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

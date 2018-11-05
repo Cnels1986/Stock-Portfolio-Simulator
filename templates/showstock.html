@@ -17,18 +17,35 @@
 <body>
   <div class="navbar">
     <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
-      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+      <a href="{{ url_for('buystock' )}}">
+        <div>
+          Buy Stock
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('sellstock' )}}">
+        <div>
+          Sell Stock
+        </div>
+      </a>
     </div>
-    <div>
-      <a href="{{ url_for('index') }}">Dashboard</a>
-      <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="stocklinks">
+      <a href="{{ url_for('index') }}">
+        <div>
+          Dashboard
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('logout') }}">
+        <div>
+          Logout
+        </div>
+      </a>
     </div>
   </div>
-  <div class="errorMessage">
-    {% if error %}
-    <p class="error">{{ error }}</p>
-    {% endif %}
+  <div class="money">
+    <h5>Your Wallet:</h5>
+    <p>${{money}}</p>
   </div>
   <div class="stock">
     <div class="stockDisplay">
@@ -43,12 +60,13 @@
         <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
       </div>
     </div>
-    <form method="post">
+    <form method="post" class="searchFormPadding">
       <p id="price">{{stockInfo[2]}}</p>
       <label>How many would you like to buy?</label>
       <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" required  />
-      <button type="submit" id="purchaseButton">Purchase</button>
+      <button type="confirm" id="purchaseButton">Purchase</button>
     </form>
+    <a href="{{ url_for('buystock') }}" class="searchlink">Continue Searching</a>
   </div>
 </body>
 </html>

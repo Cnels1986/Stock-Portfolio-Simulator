@@ -6,4 +6,10 @@ $(document).ready(function(){
     var total = quantity * parseFloat(price);
     confirm("Would you like to buy " + quantity + " stock(s) of " + stock + " for $" + total.toFixed(2));
   });
+
+  $("#sellButton").click(function(){
+    var quantity = $("#sellStock").val();
+    var stock = $("#stock").text();
+    confirm(stock);
+  });
 });
