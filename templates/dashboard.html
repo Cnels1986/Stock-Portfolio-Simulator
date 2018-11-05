@@ -41,8 +41,15 @@
     {% if portfolio %}
       {% for stock in portfolio %}
         <div class="dash_stock_info">
-          <h2>{{ stock[0]}} - {{ stock[1]}}</h2>
-          <p>Own: {{ stock[2]}}</p>
+          <div class="dash_company_info">
+            <h2>{{ stock[0][0]}}</h2>
+            <h3>{{ stock[0][1]}}</h3>
+          </div>
+          <div class="dash_price_info">
+            <p>Own: {{ stock[0][2]}}</p>
+            <p>Purchased Price: ${{ stock[0][3] }}</p>
+            <p>Current Price: ${{ stock[1] }}</p>
+          </div>
         </div>
       {% endfor %}
     {% endif %}

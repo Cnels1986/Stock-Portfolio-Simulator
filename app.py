@@ -55,14 +55,20 @@ def get_user_id():
 @app.route('/')
 @login_required
 def index():
+    s = []
     cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", name)
     user = cursor.fetchone();
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
     temp = cursor.fetchone();
     money = round(Decimal(temp[0]), 2)
-    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(user[0]))
+    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(user[0]))
     portfolio = cursor.fetchall()
-    return render_template("dashboard.html", user=user, money=money, portfolio=portfolio)
+    for stock in portfolio:
+        price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
+        stockPrice = json.loads(price.text)
+        stockTuple = (stock,round(stockPrice,2))
+        s.append(stockTuple)
+    return render_template("dashboard.html", user=user, money=money, portfolio=s)
 
 #####################
 
@@ -203,8 +209,11 @@ def confirm():
             updatedMoney = money[0] - cost
             cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
             userId = cursor.fetchone()
+            cursor.execute("SELECT * FROM Portfolio JOIN Stocks ON Portfolio.stock_id = Stocks.id WHERE Portfolio.user_id = {}".format(userId[0]))
+            portfolioCheck = cursor.fetchone()
+            print(portfolioCheck)
             # adds entry to portfolio table of what stocks and how much user bought and at what price
-            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, Decimal(price)))
+            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, float(price)))
             conn.commit()
             # updates the Wallet table with the new amount of money
             temp = float(updatedMoney)
@@ -223,12 +232,18 @@ def confirm():
 @app.route('/sell')
 @login_required
 def sellstock():
+    s = []
     cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
     userId = cursor.fetchone()
-    cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(userId[0]))
+    cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(userId[0]))
     portfolio = cursor.fetchall()
+    for stock in portfolio:
+        price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[1]))
+        stockPrice = json.loads(price.text)
+        stockTuple = (stock, round(stockPrice,2))
+        s.append(stockTuple)
     money = get_money(userId[0])
-    return render_template('sell.html', portfolio=portfolio, name=name, money=money)
+    return render_template('sell.html', portfolio=s, name=name, money=money)
 
 #####################
 

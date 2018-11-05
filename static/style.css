@@ -145,14 +145,24 @@ body{
 }
 
 .dash_stock_info{
-  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   border-bottom: 1px solid black;
   width: 60%;
   padding-top: 15px;
+  margin: 0 auto;
 }
 
 .dash_stock_info > h2{
   font-size: 20px;
+}
+
+.dash_stock_info > div{
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  margin: 0 auto;
 }
 
 .dash_header{
@@ -184,8 +194,8 @@ body{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  text-align: left;
-  width: 40%;
+
+  width: 55%;
 }
 
 .sellStockInfo > div >h4{
@@ -194,12 +204,13 @@ body{
 
 .stock_info{
   width: 60%;
+   text-align: left;
 }
 
 .searchlink{
   text-decoration: none;
   color: black;
-  font-size: 16px;
+  font-size: 22px;
 }
 
 .searchFormPadding{
@@ -235,4 +246,29 @@ body{
   text-align: center;
   padding-top: 20px;
   font-size: 20px;
+}
+
+.sellForm{
+  width: 40%;
+}
+
+.priceInfo{
+  text-align: right;
+}
+
+.dash_price_info{
+  text-align: right;
+}
+
+.dash_company_info{
+  text-align: left;
+}
+
+.dash_company_info > h2{
+  font-size: 28px;
+  padding-top: 10px;
+}
+
+.dash_company_info > h3{
+  font-size: 18px;
 }

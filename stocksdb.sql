@@ -37,7 +37,7 @@ CREATE TABLE `Portfolio` (
   `user_id` int(11) NOT NULL,
   `stock_id` int(11) NOT NULL,
   `amount` int(11) NOT NULL,
-  `price` decimal(11) NOT NULL,
+  `price` decimal(10,2) NOT NULL,
   PRIMARY KEY(`id`),
   FOREIGN KEY(`user_id`) REFERENCES Users(`id`),
   FOREIGN KEY(`stock_id`) REFERENCES Stocks(`id`)
