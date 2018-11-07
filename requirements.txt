@@ -1,0 +1,4 @@
+Flask==1.0.2
+Flask-MySQL==1.4.0
+passlib==1.7.1
+Flask-MySQLdb==0.2.0

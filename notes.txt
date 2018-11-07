@@ -1,0 +1,15 @@
+python3 -m pip install _______
+
+
+export FLASK_APP=app.py
+export FLASK_ENV=development
+. venv/bin/activate
+
+
+mysql -u root < stocksdb.sql
+
+
+font-family: 'Roboto', sans-serif;
+
+
+mysql.server start
