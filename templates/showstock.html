@@ -15,6 +15,22 @@
   <script src="static/script.js"></script>
 </head>
 <body>
+
+  <div id="modalBackground">
+    <div id="modal">
+      <h2>Confirm Purchase:</h2>
+      <p id="modalMessage">Sample Message</p>
+      <div class="modalButtons">
+        <form  method="post">
+          <input type="number" name="modalQuantity" id="modalQuantity"/>
+          <button type="button" id="cancelPurchase">Cancel</button>
+          <button type="submit" id="completePurchase">Purchase</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
   <div class="navbar">
     <div class="stocklinks">
       <a href="{{ url_for('buystock' )}}">
@@ -60,13 +76,17 @@
         <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
       </div>
     </div>
-    <form method="post" class="searchFormPadding">
+    <form class="searchFormPadding">
       <p id="price">{{stockInfo[2]}}</p>
       <label>How many would you like to buy?</label>
       <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" required  />
-      <button type="confirm" id="purchaseButton">Purchase</button>
+      <button type="button" id="purchaseButton">Purchase</button>
     </form>
     <a href="{{ url_for('buystock') }}" class="searchlink">Continue Searching</a>
   </div>
+  {% if error %}
+  <p class="loggedInError">{{ error }}</p>
+  {% endif %}
+
 </body>
 </html>

@@ -159,7 +159,7 @@ def buystock():
             stockInfo = []
             stockInfo.append(companyInfo['symbol'])
             stockInfo.append(companyInfo['companyName'])
-            stockInfo.append(stockPrice)
+            stockInfo.append(round(stockPrice,2))
             stockInfo.append(companyInfo['exchange'])
             stockInfo.append(companyInfo['description'])
 
@@ -172,12 +172,6 @@ def buystock():
             if s == None:
                 cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
                 conn.commit()
-                # conn.close()
-
-
-            # cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
-            # latestStocks = cursor.fetchall()
-            # print(latestStocks)
             global info
             info = stockInfo
             return redirect(url_for('confirm'))
@@ -196,7 +190,7 @@ def confirm():
     global info
     stockInfo = info
     if request.method == 'POST':
-        quantity = request.form['stockQuantity']
+        quantity = request.form['modalQuantity']
         symbol = stockInfo[0]
         price = stockInfo[2]
         cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
@@ -256,7 +250,7 @@ def sell(username, portfolio_id):
         cursor.execute("SELECT amount FROM Portfolio WHERE id = {}".format(portfolio_id))
         owned = cursor.fetchone()
         if int(quantity) > owned[0]:
-            return "YOU DON'T OWN THAT MANY"
+            error = "Not enough owned"
         else:
             # retrieves stock symbol that the user is selling
             cursor.execute("SELECT Stocks.symbol FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE Portfolio.id = {}".format(portfolio_id))

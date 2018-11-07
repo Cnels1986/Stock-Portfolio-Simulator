@@ -62,8 +62,10 @@ body{
 
 
 .dashboard{
-  height: 800px;
+  height: 150%;
   width: 1000px;
+  padding-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 .searchForm{
@@ -121,12 +123,14 @@ body{
 }
 
 .stock{
+  border: 1px solid black;
   background-color: #EFEFEF;
   margin: 0 auto;
   margin-top: 40px;
   text-align: center;
   padding-bottom: 50px;
   width: 90%;
+  box-shadow: 5px 5px 15px;
 }
 
 .stockSearch{
@@ -203,7 +207,7 @@ body{
 }
 
 .stock_info{
-  width: 60%;
+  width: 55%;
    text-align: left;
 }
 
@@ -271,4 +275,44 @@ body{
 
 .dash_company_info > h3{
   font-size: 18px;
+}
+
+#modalBackground{
+  z-index: 100;
+  background-color: rgba(0,0,0,0.6);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: none;
+}
+
+#modal{
+  height: 150px;
+  width: 600px;
+  background-color: #EFEFEF;
+  margin: auto;
+  margin-top: 300px;
+  position: relative;
+  box-shadow: 5px 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+#modal > h2{
+  padding-top: 20px;
+  font-size: 18px;
+}
+
+.modalButtons{
+  margin: 0 auto;
+}
+
+.modalQuantity{
+  display: none;
+}
+
+.hide{
+  display: none;
 }
