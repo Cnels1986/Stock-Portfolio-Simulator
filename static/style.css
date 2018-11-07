@@ -3,15 +3,18 @@ body{
   background-color: #838893;
 }
 
-.registerForm{
-  width: 400px;
-  height: 350px;
+.formBackground{
   border: 2px solid black;
   background-color: #EFEFEF;
   margin: 0 auto;
   margin-top: 100px;
   text-align: center;
   box-shadow: 5px 5px 15px;
+}
+
+.registerForm{
+  width: 400px;
+  height: 350px;
 }
 
 .registerForm > h1{
@@ -38,23 +41,278 @@ body{
 }
 
 .navbar{
-  height: 30px;
+  height: 40px;
   width: 100%;
   background-color: #EFEFEF;
   box-shadow: 5px 5px 15px;
 }
 
-.stocklinks > a{
-  padding-right: 30px;
+.navbar > p{
+  padding: 0px;
 }
 
+.stocklinks{
+  display: flex;
+}
+
+.stocklinks > a{
+  padding: 0px 15px 5px;
+  color: black;
+}
+
+
 .dashboard{
-  height: 800px;
+  height: 150%;
   width: 1000px;
-  border: 2px solid black;
+  padding-bottom: 30px;
+  margin-bottom: 50px;
+}
+
+.searchForm{
+  width: 1000px;
+  padding: 20px;
+}
+
+.searchForm > a{
+  color: black;
+}
+
+.stockDisplay{
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+}
+
+.stockPrice{
+  width: 65%;
+  padding: 30px 0px 40px 40px;
+}
+
+.stockPrice > h3{
+  text-align: center;
+  padding: 20px;
+}
+
+.stockPrice > p{
+  margin: 10px 0px 0px 0px;
+}
+
+.stockPrice > h1{
+  padding: 0px 20px;
+}
+
+.stockPrice > h2{
+  padding: 0px 20px;
+  font-size: 20px;
+}
+
+.stockInfo{
+  width: 35%;
+  border-left: 1px solid black;
+  padding: 40px 0px 40px 20px;
+  margin: 20px;
+}
+
+.stockInfo > h3{
+  font-size: 16px;
+}
+
+.stockInfo > h4{
+  font-size: 14px;
+  width: 80%;
+}
+
+.stock{
+  border: 1px solid black;
   background-color: #EFEFEF;
   margin: 0 auto;
-  margin-top: 100px;
+  margin-top: 40px;
   text-align: center;
+  padding-bottom: 50px;
+  width: 90%;
   box-shadow: 5px 5px 15px;
+}
+
+.stockSearch{
+  padding: 20px;
+}
+
+#price{
+  visibility: hidden;
+}
+
+.stockTitle{
+  text-align: left;
+  font-size: 30px;
+  font-weight: bold;
+  padding: 10px 0px 20px 25px;
+}
+
+.dash_stock_info{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  width: 60%;
+  padding-top: 15px;
+  margin: 0 auto;
+}
+
+.dash_stock_info > h2{
+  font-size: 20px;
+}
+
+.dash_stock_info > div{
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  margin: 0 auto;
+}
+
+.dash_header{
+  padding: 18px;
+}
+
+.sellStock{
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin: 0 auto;
+  padding: 15px;
+  border-bottom: 1px solid black;
+}
+
+.sellContainer{
+  width: 1000px;
+}
+
+.sellStockInfo > div > h3{
+  font-size: 14px;
+}
+
+.sellStockInfo > div > h2{
+  font-size: 20px;
+}
+
+.sellStockInfo{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  width: 55%;
+}
+
+.sellStockInfo > div >h4{
+  text-align: right;
+}
+
+.stock_info{
+  width: 55%;
+   text-align: left;
+}
+
+.searchlink{
+  text-decoration: none;
+  color: black;
+  font-size: 22px;
+}
+
+.searchFormPadding{
+  padding-bottom: 20px;
+}
+
+.money{
+  background-color: #EFEFEF;
+  height: 60px;
+  width: 160px;
+  border-radius: 10px;
+  margin: 15px 10px;
+  text-align: center;
+}
+
+.money > p{
+  font-size: 24px;
+}
+
+.money > h5{
+  font-size: 12px;
+  padding-top: 4px;
+}
+
+.loggedInError{
+  text-align: center;
+  color: #990404;
+  padding-top: 20px;
+  font-size: 20px;
+}
+
+.flash_messages{
+  text-align: center;
+  padding-top: 20px;
+  font-size: 20px;
+}
+
+.sellForm{
+  width: 40%;
+}
+
+.priceInfo{
+  text-align: right;
+}
+
+.dash_price_info{
+  text-align: right;
+}
+
+.dash_company_info{
+  text-align: left;
+}
+
+.dash_company_info > h2{
+  font-size: 28px;
+  padding-top: 10px;
+}
+
+.dash_company_info > h3{
+  font-size: 18px;
+}
+
+#modalBackground{
+  z-index: 100;
+  background-color: rgba(0,0,0,0.6);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: none;
+}
+
+#modal{
+  height: 150px;
+  width: 600px;
+  background-color: #EFEFEF;
+  margin: auto;
+  margin-top: 300px;
+  position: relative;
+  box-shadow: 5px 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+#modal > h2{
+  padding-top: 20px;
+  font-size: 18px;
+}
+
+.modalButtons{
+  margin: 0 auto;
+}
+
+.modalQuantity{
+  display: none;
+}
+
+.hide{
+  display: none;
 }

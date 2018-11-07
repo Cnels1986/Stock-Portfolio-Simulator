@@ -11,14 +11,48 @@
 <body>
   <div class="navbar">
     <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">Buy Stock</a>
-      <a href="{{ url_for('sellstock' )}}">Sell Stock</a>
+      <a href="{{ url_for('buystock' )}}">
+        <div>
+          Buy Stock
+        </div>
+      </a>
+      <span>|</span>
+      <a href="{{ url_for('sellstock' )}}">
+        <div>
+          Sell Stock
+        </div>
+      </a>
     </div>
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <div class="stocklinks">
+      <a href="{{ url_for('logout') }}">
+        <div>
+          Logout
+        </div>
+      </a>
+    </div>
   </div>
-  <div class="dashboard">
-    <h2>Welcome {{user[1]}}</h2>
-    <h3>You have: ${{money[0]}}</h3>
+  <div class="money">
+    <h5>Your Wallet:</h5>
+    <p>${{money}}</p>
+  </div>
+  <div class="dashboard formBackground">
+    <h2 class="dash_header">Welcome - {{user[2]}}</h2>
+    <h3 class="stockTitle">Your Stocks:</h3>
+    {% if portfolio %}
+      {% for stock in portfolio %}
+        <div class="dash_stock_info">
+          <div class="dash_company_info">
+            <h2>{{ stock[0][0]}}</h2>
+            <h3>{{ stock[0][1]}}</h3>
+          </div>
+          <div class="dash_price_info">
+            <p>Own: {{ stock[0][2]}}</p>
+            <p>Current Price: ${{ stock[1] }}</p>
+            <p>Purchased Price: ${{ stock[0][3] }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
 </body>
 </html>
