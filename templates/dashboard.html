@@ -7,30 +7,37 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
   <title>Stock Portfolio Simulator - Home</title>
   <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="../static/burger.css">
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+  <script src="static/script.js"></script>
+  <script src="static/burger.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">
-        <div>
-          Buy Stock
-        </div>
-      </a>
-      <span>|</span>
-      <a href="{{ url_for('sellstock' )}}">
-        <div>
-          Sell Stock
-        </div>
-      </a>
-    </div>
-    <div class="stocklinks">
-      <a href="{{ url_for('logout') }}">
-        <div>
-          Logout
-        </div>
-      </a>
-    </div>
+  <div id="burger">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
+  <a href="{{ url_for('buystock' )}}" id="link1" class="navLink">
+    <div>
+      <p class="linkText">Buy Stocks</p>
+    </div>
+  </a>
+  <a href="{{ url_for('sellstock' )}}" id="link2" class="navLink">
+    <div>
+      <p class="linkText">Sell Stocks</p>
+    </div>
+  </a>
+  <a href="{{ url_for('logout' )}}" id="link3" class="navLink">
+    <div>
+      <p class="linkText">Logout</p>
+    </div>
+  </a>
   <div class="money">
     <h5>Your Wallet:</h5>
     <p>${{money}}</p>
@@ -40,7 +47,7 @@
     <h3 class="stockTitle">Your Stocks:</h3>
     {% if portfolio %}
       {% for stock in portfolio %}
-        <div class="dash_stock_info">
+        <!-- <div class="dash_stock_info">
           <div class="dash_company_info">
             <h2>{{ stock[0][0]}}</h2>
             <h3>{{ stock[0][1]}}</h3>
@@ -50,6 +57,13 @@
             <p>Current Price: ${{ stock[1] }}</p>
             <p>Purchased Price: ${{ stock[0][3] }}</p>
           </div>
+        </div> -->
+        <button class="accordion"><h2>{{stock[0][0]}}</h2></button>
+        <div class="panel">
+          <h3>{{ stock[0][1]}}</h3>
+          <p>Own: {{ stock[0][2]}}</p>
+          <p>Current Price: ${{ stock[1] }}</p>
+          <p>Purchased Price: ${{ stock[0][3] }}</p>
         </div>
       {% endfor %}
     {% endif %}

@@ -83,13 +83,13 @@
       <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" required  />
       <button type="button" id="purchaseButton">Purchase</button>
     </form>
+    <canvas id="myChart" width="1100" height="200"></canvas>
     <a href="{{ url_for('buystock') }}" class="searchlink">Continue Searching</a>
   </div>
   {% if error %}
   <p class="loggedInError">{{ error }}</p>
   {% endif %}
 
-  <canvas id="myChart" width="1000" height="300"></canvas>
 </body>
 
 <script>

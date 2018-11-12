@@ -321,3 +321,21 @@ body{
   margin: 0 auto;
   margin-top: 30px;
 }
+
+.accordion{
+  border: none;
+  width: 90%;
+}
+
+.accordion:hover{
+  background-color: grey;
+}
+
+.panel{
+  width: 70%;
+  margin: 0 auto;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  border-bottom: 1px solid black;
+}

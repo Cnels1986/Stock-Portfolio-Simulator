@@ -19,7 +19,7 @@ info = ''
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '104.196.49.3'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
@@ -292,17 +292,8 @@ def sell(username, portfolio_id):
 #####################
 
 @app.route('/test')
-@login_required
 def test():
-    test = requests.get("https://api.iextrading.com/1.0/stock/f/chart/6m")
-    thing = json.loads(test.text)
-    dates = []
-    prices = []
-    legend = "Stock Price"
-    for a in thing:
-        dates.append(a['date'])
-        prices.append(round(a['close'],2))
-    return render_template('test.html', labels=dates, values=prices, legend=legend)
+    return "This is only a test"
 
 # the route clears the session and redirects user to the login page, thus logging the out
 @app.route('/logout')
