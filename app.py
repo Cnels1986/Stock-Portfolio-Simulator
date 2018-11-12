@@ -19,7 +19,8 @@ info = ''
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '104.196.49.3'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
 conn = mysql.connect()
@@ -189,9 +190,9 @@ def confirm():
     # gets the information of the stock send and display within the template
     global info
     stockInfo = info
+    symbol = stockInfo[0]
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
-        symbol = stockInfo[0]
         price = stockInfo[2]
         cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
         money = cursor.fetchone()
@@ -219,7 +220,15 @@ def confirm():
 
     id = get_user_id()
     m = get_money(id)
-    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m)
+    prices = []
+    dates = []
+    stockPriceInfo = requests.get("https://api.iextrading.com/1.0/stock/{}/chart/1y".format(symbol))
+    PriceInfo = json.loads(stockPriceInfo.text)
+    for a in PriceInfo:
+        dates.append(a['date'])
+        prices.append(round(a['close'],2))
+    legend = "Stock Prices"
+    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend)
 
 #####################
 
@@ -281,6 +290,10 @@ def sell(username, portfolio_id):
     return redirect(url_for('index'))
 
 #####################
+
+@app.route('/test')
+def test():
+    return "This is only a test"
 
 # the route clears the session and redirects user to the login page, thus logging the out
 @app.route('/logout')

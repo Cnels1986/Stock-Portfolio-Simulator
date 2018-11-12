@@ -1,0 +1,89 @@
+#burger{
+  height: 40px;
+  width: 40px;
+  position: relative;
+  margin: 10px;
+  transition: rotate(0deg);
+  transition: .25s ease-in-out;
+}
+
+#burger > span{
+  height:6px;
+  position: absolute;
+  display: block;
+  width: 100%;
+  background-color: black;
+  border-radius: 4px;
+  transform: rotate(0deg);
+  transform: translate(0,0);
+  transition: .6s ease-in-out;
+}
+
+#burger span:nth-child(1){
+  top: 0px;
+}
+#burger span:nth-child(2){
+  top: 15px;
+}
+#burger span:nth-child(3){
+  top: 30px;
+}
+
+#burger.open span:nth-child(1){
+  transform: translate(0, 30px);
+}
+#burger.open span:nth-child(2){
+  transform: rotate(60deg) translate(4px, -7px);
+}
+#burger.open span:nth-child(3){
+  transform: rotate(-60deg) translate(9px, -16px);
+}
+
+.navLink{
+  position: absolute;
+  top: 60px;
+  transition: .6s ease-in-out;
+  text-decoration: none;
+}
+#link1{
+  left:-220px;
+}
+#link2{
+  top: 100px;
+  left:-220px;
+}
+#link3{
+  top: 140px;
+  left:-220px;
+}
+
+#link1.showLink{
+  left: 0;
+}
+#link2.showLink{
+  left: 0;
+}
+#link3.showLink{
+  left: 0;
+}
+
+
+.navLink > div{
+  background-color: #EFEFEF;
+  height: 40px;
+  width: 200px;
+  border-right: 5px solid black;
+  border-bottom: 2px solid black;
+}
+
+.linkText{
+  font-size: 16px;
+  color: black;
+  text-align: center;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.navLink > div:hover{
+  background-color: #a3a3a3;
+}

@@ -13,3 +13,6 @@ font-family: 'Roboto', sans-serif;
 
 
 mysql.server start
+
+
+pip freeze > requirements.txt
