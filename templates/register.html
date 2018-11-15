@@ -13,8 +13,7 @@
     <h1>Register:</h1>
     <form method="post">
       <div class="regInput">
-        <label for="userName">User Name:</label>
-        <input name="userName" id="userName" ref="userName" placeholder="Username" required />
+        <input name="userName" id="userName" ref="userName" placeholder="Username" class="input" required />
         <div class="errorMessage">
           {% if error %}
           <p class="error">{{ error }}</p>
@@ -23,16 +22,14 @@
       </div>
 
       <div class="regInput">
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" ref="password" placeholder="Password" required />
+        <input type="password" name="password" id="password" ref="password" placeholder="Password" class="input"  required />
       </div>
 
       <div class="regInput">
-        <label for="name">Name:</label>
-        <input name="name" id="name" ref="name" placeholder="Name" required />
+        <input name="name" id="name" ref="name" class="input"  placeholder="Name" required />
       </div>
 
-      <button type="submit" @click.prevent="login">Register</button>
+      <button type="submit" @click.prevent="login" class="submitButton">Register</button>
 
       <div class="link">
         <a href="{{ url_for('login') }}">Aleady registered? Login here.</a>

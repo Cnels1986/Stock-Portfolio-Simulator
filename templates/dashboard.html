@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
   <title>Stock Portfolio Simulator - Home</title>
   <link rel="stylesheet" href="../static/style.css">
   <link rel="stylesheet" href="../static/burger.css">
@@ -16,54 +17,65 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
   <script src="static/script.js"></script>
   <script src="static/burger.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 </head>
 <body>
-  <div id="burger">
-    <span></span>
-    <span></span>
-    <span></span>
+  <div class="menu">
+    <div id="burger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <p id="walletButton">Wallet</p>
   </div>
   <a href="{{ url_for('buystock' )}}" id="link1" class="navLink">
-    <div>
+    <div class="linkPanel">
       <p class="linkText">Buy Stocks</p>
     </div>
   </a>
   <a href="{{ url_for('sellstock' )}}" id="link2" class="navLink">
-    <div>
+    <div class="linkPanel">
       <p class="linkText">Sell Stocks</p>
     </div>
   </a>
   <a href="{{ url_for('logout' )}}" id="link3" class="navLink">
-    <div>
+    <div class="linkPanel">
       <p class="linkText">Logout</p>
     </div>
   </a>
-  <div class="money">
+  <div id="wallet">
     <h5>Your Wallet:</h5>
     <p>${{money}}</p>
   </div>
+  <div class="name">
+    <p>{{user[2]}}</p>
+  </div>
   <div class="dashboard formBackground">
-    <h2 class="dash_header">Welcome - {{user[2]}}</h2>
-    <h3 class="stockTitle">Your Stocks:</h3>
+    <h3 class="stockTitle">Portfolio:</h3>
     {% if portfolio %}
       {% for stock in portfolio %}
-        <!-- <div class="dash_stock_info">
-          <div class="dash_company_info">
-            <h2>{{ stock[0][0]}}</h2>
-            <h3>{{ stock[0][1]}}</h3>
+        <button class="accordion">
+          <div>
+            <h2 class="symbol">{{stock[0][0]}}</h2>
+            <p>+</p>
           </div>
-          <div class="dash_price_info">
-            <p>Own: {{ stock[0][2]}}</p>
-            <p>Current Price: ${{ stock[1] }}</p>
-            <p>Purchased Price: ${{ stock[0][3] }}</p>
-          </div>
-        </div> -->
-        <button class="accordion"><h2>{{stock[0][0]}}</h2></button>
+        </button>
         <div class="panel">
-          <h3>{{ stock[0][1]}}</h3>
-          <p>Own: {{ stock[0][2]}}</p>
-          <p>Current Price: ${{ stock[1] }}</p>
-          <p>Purchased Price: ${{ stock[0][3] }}</p>
+          <div>
+            <h3>{{ stock[0][1]}}</h3>
+            <p>Own: {{ stock[0][2]}}</p>
+          </div>
+          <div>
+            <div>
+              <p>Current Price: $ </p>
+              <p class="currentPrice">{{stock[1]}}</p>
+            </div>
+            <div>
+              <p>Purchased Price: $ </p>
+              <p class="purchasePrice">{{stock[0][3]}}</p>
+            </div>
+              <p class="percentChange"></p>
+          </div>
         </div>
       {% endfor %}
     {% endif %}

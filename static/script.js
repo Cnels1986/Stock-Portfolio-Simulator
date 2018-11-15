@@ -43,31 +43,31 @@ $(document).ready(function(){
     });
   }
 
+  // gets the current and purchased prices of the stocks and changes the current price's color based on its value compared to purchased
+  var currentPrice = document.getElementsByClassName("currentPrice");
+  var purchasePrice = document.getElementsByClassName("purchasePrice");
+  var percentChange = document.getElementsByClassName("percentChange");
+  for(var a = 0; a < currentPrice.length; a++){
+    // current price is less than the purchased price
+    if( currentPrice[a].innerHTML < purchasePrice[a].innerHTML){
+      var change = purchasePrice[a].innerHTML - currentPrice[a].innerHTML;
+      var percent = (change/purchasePrice[a].innerHTML) * 100;
+      console.log("Down: %" + percent.toFixed(2));
+      percentChange[a].innerHTML = "- " + percent.toFixed(2) + "%";
+      // percentChange[a].style.display = "block";
+      percentChange[a].style.color = "red"
+      currentPrice[a].style.color = "red";
+    }
+    // current price is more than the purchased price
+    else if( currentPrice[a].innerHTML > purchasePrice[a].innerHTML){
+      var change = currentPrice[a].innerHTML - purchasePrice[a].innerHTML;
+      var percent = (change/purchasePrice[a].innerHTML) * 100;
+      console.log("Up: %" + percent.toFixed(2));
+      percentChange[a].innerHTML = "+ " + percent.toFixed(2) + "%";
+      // percentChange[a].style.display = "block";
+      percentChange[a].style.color = "green"
+      currentPrice[a].style.color = "green";
+    }
+  }
 
-  // if(page == 'sell')
-  // {
-  //   var cancelSell = document.getElementById('cancelSell');
-  //   var sellButton = document.getElementsByClassName('sellButton');
-  //   var stockPrices = document.getElementsByClassName('sellStockInput');
-  //
-  //   for(let i=0; i<sellButton.length; i++){
-  //     sellButton[i].onclick = function(){
-  //       var symbol = sellButton[i].value;
-  //       var quantity = stockPrices[i].value;
-  //       if(quantity != "" && quantity != '0'){
-  //         modal.style.display = "block";
-  //         document.getElementById("modalQuantity").value = quantity;
-  //         document.getElementById("modalQuantity").style.display = "none";
-  //         document.getElementById("modalMessage").innerHTML = "Would you like to sell " + quantity + " stock(s) of " + symbol;
-  //       }
-  //       else{
-  //         var inputs = document.getElementsByClassName('sellStockInput');
-  //         inputs[i].style.border = "2px solid red";
-  //       }
-  //     }
-  //   }
-  //   cancelSell.onclick = function() {
-  //     modal.style.display = "none";
-  //   }
-  // }
 });

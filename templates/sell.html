@@ -5,47 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet"> 
   <title>Stock Portfolio Simulator - Buy Stock</title>
   <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="../static/burger.css">
   <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous">
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
   <script src="static/script.js"></script>
+  <script src="static/burger.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">
-        <div>
-          Buy Stock
-        </div>
-      </a>
-      <span>|</span>
-      <a href="{{ url_for('sellstock' )}}">
-        <div>
-          Sell Stock
-        </div>
-      </a>
-      <span>|</span>
-      <a href="{{ url_for('index') }}">
-        <div>
-          Dashboard
-        </div>
-      </a>
+  <div class="menu">
+    <div id="burger">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-    <div class="stocklinks">
-      <a href="{{ url_for('logout') }}">
-        <div>
-          Logout
-        </div>
-      </a>
-    </div>
+    <p id="walletButton">Wallet</p>
   </div>
-  <div class="money">
+  <a href="{{ url_for('index' )}}" id="link1" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Dashboard</p>
+    </div>
+  </a>
+  <a href="{{ url_for('buystock' )}}" id="link2" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Buy Stocks</p>
+    </div>
+  </a>
+  <a href="{{ url_for('logout' )}}" id="link3" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Logout</p>
+    </div>
+  </a>
+  <div id="wallet">
     <h5>Your Wallet:</h5>
     <p>${{money}}</p>
+  </div>
+  <div class="name">
+    <p>{{name}}</p>
   </div>
   <div class="formBackground sellContainer">
     {% if portfolio %}
@@ -58,14 +60,21 @@
             </div>
             <div class="priceInfo">
               <h4>You own: {{ stock[0][3]}}</h4>
-              <p>Purchased Price: ${{ stock[0][4]}}</p>
-              <p>Current Price: ${{ stock[1] }}</p>
+              <div>
+                <p>Current Price: $ </p>
+                <p class="currentPrice">{{stock[1]}}</p>
+              </div>
+              <div>
+                <p>Purchased Price: $ </p>
+                <p class="purchasePrice">{{stock[0][4]}}</p>
+              </div>
+              <p class="percentChange"></p>
             </div>
           </div>
           <div class="sellForm">
             <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0][0])}}>
               <label for="sellStock">How many would you like to sell?</label>
-              <input type="number" name="sellStock" id="sellStock" ref="sellStock" required  />
+              <input type="number" name="sellStock" id="sellStock" ref="sellStock" class="input"  required  />
               <button type="submit" id="sellButton">Sell</button>
             </form>
           </div>

@@ -16,3 +16,6 @@ mysql.server start
 
 
 pip freeze > requirements.txt
+
+
+mysql --host=35.196.70.93 --user=root --password

@@ -19,7 +19,8 @@ info = ''
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-app.config['MYSQL_DATABASE_HOST'] = '104.196.49.3'
+app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
+# app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
@@ -51,6 +52,11 @@ def get_user_id():
     userId = cursor.fetchone()
     return userId[0]
 
+def get_user_name():
+    cursor.execute("SELECT name FROM Users WHERE username = (%s)", name)
+    userName = cursor.fetchone()
+    return userName[0]
+
 #####################
 
 @app.route('/')
@@ -75,8 +81,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    errorName = None
-    errorPass = None
+    error = None
     if request.method == "POST":
         # retrieves input from the login form
         username = request.form["userName"]
@@ -88,7 +93,7 @@ def login():
 
         # user name does not exist within the Users table
         if user == None:
-            errorName = "Username does not exist"
+            error = "Incorrect Login Credentials"
         else:
             if sha256_crypt.verify(request.form["password"], user[2]):
                 session['logged_in'] = True
@@ -99,9 +104,9 @@ def login():
                 name = username
                 return redirect(url_for('index'))
             else:
-                errorPass = "Incorrect password"
+                error = "Incorrect Login Credentials"
 
-    return render_template('login.html', errorName=errorName, errorPass=errorPass)
+    return render_template('login.html', error=error)
 
 #####################
 
@@ -179,7 +184,10 @@ def buystock():
         # return render_template("showstock.html", stockInfo=stockInfo)
     id = get_user_id()
     m = get_money(id)
-    return render_template('buy.html', money=m, error=error)
+    cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
+    stocks = cursor.fetchall()
+    userName = get_user_name()
+    return render_template('buy.html', money=m, error=error, name=userName, stocks=stocks)
 
 #####################
 
@@ -194,7 +202,7 @@ def confirm():
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
         price = stockInfo[2]
-        cursor.execute("SELECT money FROM WALLET JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+        cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
         money = cursor.fetchone()
         cost = Decimal(quantity) * Decimal(price)
 
@@ -222,13 +230,15 @@ def confirm():
     m = get_money(id)
     prices = []
     dates = []
+    # getting stock information for the last year to dynamically create a graph of the prices
     stockPriceInfo = requests.get("https://api.iextrading.com/1.0/stock/{}/chart/1y".format(symbol))
     PriceInfo = json.loads(stockPriceInfo.text)
     for a in PriceInfo:
         dates.append(a['date'])
         prices.append(round(a['close'],2))
     legend = "Stock Prices"
-    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend)
+    userName = get_user_name()
+    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName)
 
 #####################
 
@@ -246,7 +256,8 @@ def sellstock():
         stockTuple = (stock, round(stockPrice,2))
         s.append(stockTuple)
     money = get_money(userId[0])
-    return render_template('sell.html', portfolio=s, name=name, money=money)
+    userName = get_user_name()
+    return render_template('sell.html', portfolio=s, name=userName, money=money)
 
 #####################
 
@@ -290,10 +301,6 @@ def sell(username, portfolio_id):
     return redirect(url_for('index'))
 
 #####################
-
-@app.route('/test')
-def test():
-    return "This is only a test"
 
 # the route clears the session and redirects user to the login page, thus logging the out
 @app.route('/logout')

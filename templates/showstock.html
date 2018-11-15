@@ -5,14 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
   <title>Stock Portfolio Simulator - Buy Stock</title>
   <link rel="stylesheet" href="../static/style.css">
+  <link rel="stylesheet" href="../static/burger.css">
   <script
     src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous">
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
   <script src="static/script.js"></script>
+  <script src="static/burger.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 </head>
 <body>
@@ -22,69 +26,71 @@
       <h2>Confirm Purchase:</h2>
       <p id="modalMessage">Sample Message</p>
       <div class="modalButtons">
-        <form  method="post">
+        <form method="post">
           <input type="number" name="modalQuantity" id="modalQuantity"/>
-          <button type="button" id="cancelPurchase">Cancel</button>
-          <button type="submit" id="completePurchase">Purchase</button>
+          <button type="button" id="cancelPurchase" class="submitButton">Cancel</button>
+          <button type="submit" id="completePurchase" class="submitButton">Purchase</button>
         </form>
       </div>
     </div>
   </div>
 
-
-  <div class="navbar">
-    <div class="stocklinks">
-      <a href="{{ url_for('buystock' )}}">
-        <div>
-          Buy Stock
-        </div>
-      </a>
-      <span>|</span>
-      <a href="{{ url_for('sellstock' )}}">
-        <div>
-          Sell Stock
-        </div>
-      </a>
-      <span>|</span>
-      <a href="{{ url_for('index') }}">
-        <div>
-          Dashboard
-        </div>
-      </a>
+  <div class="menu">
+    <div id="burger">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
-    <div class="stocklinks">
-      <a href="{{ url_for('logout') }}">
-        <div>
-          Logout
-        </div>
-      </a>
-    </div>
+    <p id="walletButton">Wallet</p>
   </div>
-  <div class="money">
+  <a href="{{ url_for('index' )}}" id="link1" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Dashboard</p>
+    </div>
+  </a>
+  <a href="{{ url_for('sellstock' )}}" id="link2" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Sell Stocks</p>
+    </div>
+  </a>
+  <a href="{{ url_for('logout' )}}" id="link3" class="navLink">
+    <div class="linkPanel">
+      <p class="linkText">Logout</p>
+    </div>
+  </a>
+
+  <div id="wallet">
     <h5>Your Wallet:</h5>
     <p>${{money}}</p>
+  </div>
+  <div class="name">
+    <p>{{name}}</p>
   </div>
   <div class="stock">
     <div class="stockDisplay">
       <div class="stockPrice">
-        <h1 id="stock">{{ stockInfo[0] }}</h1>
-        <p>Company:</p>
-        <h2> {{ stockInfo[1] }}</h2>
-        <h3>Current Price: ${{ stockInfo[2] }}</h3>
+        <div>
+          <h1 id="stock">{{ stockInfo[0] }}</h1>
+          <p>Company:</p>
+          <h2> {{ stockInfo[1] }}</h2>
+        </div>
+        <div class="sPrice">
+          <h3>Current Price: ${{ stockInfo[2] }}</h3>
+        </div>
       </div>
       <div class="stockInfo">
         <h3>{{ stockInfo[3] }} </h3>
         <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
       </div>
     </div>
-    <form class="searchFormPadding">
+    <form class="stockSearch">
       <p id="price">{{stockInfo[2]}}</p>
       <label>How many would you like to buy?</label>
-      <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" required  />
+      <input type="number" name="stockQuantity" id="stockQuantity" ref="stockQuantity" class="input"  required  />
       <button type="button" id="purchaseButton">Purchase</button>
     </form>
     <canvas id="myChart" width="1100" height="200"></canvas>
-    <a href="{{ url_for('buystock') }}" class="searchlink">Continue Searching</a>
+    <a href="{{ url_for('buystock') }}" class="stockLink">Continue Searching</a>
   </div>
   {% if error %}
   <p class="loggedInError">{{ error }}</p>
@@ -102,20 +108,20 @@
               {% endfor %}],
     datasets : [{
         label: '{{ legend }}',
-        fill: true,
+        // fill: true,
         lineTension: 0.1,
-        backgroundColor: "rgba(75,192,192,0.4)",
-        borderColor: "rgba(75,192,192,1)",
+        // backgroundColor: "#8bffa5",
+        borderColor: "#00ff3b",
         borderCapStyle: 'round',
         borderDash: [],
         borderDashOffset: 0.0,
         borderJoinStyle: 'miter',
-        pointBorderColor: "rgba(75,192,192,1)",
-        pointBackgroundColor: "#fff",
+        pointBorderColor: "#00ff3b",
+        pointBackgroundColor: "#d1d1d1",
         pointBorderWidth: 1,
         pointHoverRadius: 5,
-        pointHoverBackgroundColor: "rgba(75,192,192,1)",
-        pointHoverBorderColor: "rgba(220,220,220,1)",
+        pointHoverBackgroundColor: "#d1d1d1",
+        pointHoverBorderColor: "#212121",
         pointHoverBorderWidth: 2,
         pointRadius: 1,
         pointHitRadius: 10,
