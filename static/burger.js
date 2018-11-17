@@ -21,4 +21,7 @@ $(document).ready(function(){
   $("#wallet").click(function(){
     $("#wallet").toggleClass('showWallet');
   })
+  $("#newsButton").click(function(){
+    $(".stockNews").toggleClass('openNews');
+  })
 })

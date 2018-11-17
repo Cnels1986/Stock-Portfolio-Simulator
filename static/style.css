@@ -479,3 +479,51 @@ a{
   border: 1px solid #00ff3b;
   border-radius: 10px;
 }
+
+.dashHeader{
+  display: flex;
+  justify-content: space-between;
+}
+
+.dashHeader >p{
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  padding-right: 25px;
+  text-decoration: underline;
+}
+
+footer{
+  text-align: center;
+  color: #d1d1d1;
+  border-top: 2px solid #d1d1d1;
+  width: 35%;
+  margin: 0 auto;
+  margin-top: 80px;
+  border-radius: 50px;
+}
+
+footer > h3{
+  padding-top: 15px;
+  font-size: 12px;
+}
+
+#newsButton{
+  height: 40px;
+  width: 100px;
+}
+
+.stockNews{
+  height: 800px;
+  width: 300px;
+  position: absolute;
+  right: -5px;
+  top: -1000px;
+  background-color: #d1d1d1;
+  border-radius: 10px;
+  border: 5px solid #212121;
+  transition: .6s;
+}
+
+.stockNews.openNews{
+  top: 60px;
+}

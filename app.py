@@ -42,6 +42,8 @@ def login_required(f):
 
 ####################
 
+# functions are used to grab certain data from the database and returns it
+
 def get_money(userId):
     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
     money = cursor.fetchone()
@@ -75,7 +77,12 @@ def index():
         stockPrice = json.loads(price.text)
         stockTuple = (stock,round(stockPrice,2))
         s.append(stockTuple)
-    return render_template("dashboard.html", user=user, money=money, portfolio=s)
+    worth = 0
+    for test in s:
+        worth = worth + (test[1] * test[0][2])
+    total = Decimal(worth) + money
+    total = round(total,2)
+    return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total)
 
 #####################
 
@@ -238,6 +245,14 @@ def confirm():
         prices.append(round(a['close'],2))
     legend = "Stock Prices"
     userName = get_user_name()
+    news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
+    stockNews = json.loads(news.text)
+    newsList = []
+    for new in stockNews:
+        newList = [new['url'],new['headline'],new['summary']]
+        newsList.append(newList)
+    for test in newsList:
+        print(test)
     return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName)
 
 #####################

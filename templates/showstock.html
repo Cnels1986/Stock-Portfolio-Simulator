@@ -81,6 +81,7 @@
       <div class="stockInfo">
         <h3>{{ stockInfo[3] }} </h3>
         <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
+        <button type="button" id="newsButton" class="submitButton">News</button>
       </div>
     </div>
     <form class="stockSearch">
@@ -92,10 +93,14 @@
     <canvas id="myChart" width="1100" height="200"></canvas>
     <a href="{{ url_for('buystock') }}" class="stockLink">Continue Searching</a>
   </div>
+  <div class="stockNews">
+  </div>
   {% if error %}
   <p class="loggedInError">{{ error }}</p>
   {% endif %}
-
+  <footer class="footer">
+    <h3>Chris Nelson &copy;2018</h3>
+  </footer>
 </body>
 
 <script>
