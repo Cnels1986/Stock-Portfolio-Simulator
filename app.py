@@ -46,7 +46,7 @@ def login_required(f):
 
 def get_money(userId):
     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
-    money = cursor.fetchone(d
+    money = cursor.fetchone()
     return money[0]
 
 def get_user_id():
