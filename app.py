@@ -105,7 +105,7 @@ def login():
             if sha256_crypt.verify(request.form["password"], user[2]):
                 session['logged_in'] = True
                 session['username'] = username
-                session.permanent = True
+                # session.permanent = True
                 flash("You are now logged in")
                 global name
                 name = username
@@ -142,7 +142,7 @@ def register():
             # sets the session so user is now logged in to the app
             session['logged_in'] = True
             session['username'] = username
-            session.permanent = True
+            # session.permanent = True
             flash("Thank you for registering")
             global name
             name = username
