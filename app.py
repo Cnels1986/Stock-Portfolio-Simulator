@@ -50,14 +50,16 @@ def get_money(userId):
     return money[0]
 
 def get_user_id():
-    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
-    return userId[0]
+    id = userId[0]
+    return id
 
 def get_user_name():
-    cursor.execute("SELECT name FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT name FROM Users WHERE username = (%s)", session['username'])
     userName = cursor.fetchone()
-    return userName[0]
+    name = userName[0]
+    return name
 
 #####################
 
@@ -69,13 +71,15 @@ def temp():
 @login_required
 def index():
     s = []
-    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", session['username'])
     user = cursor.fetchone();
-    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+
+    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
+
+    money = temp[0]
     print(temp)
-    money = round(temp[0], 2)
-    print(money)
+
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
@@ -112,7 +116,7 @@ def login():
             if sha256_crypt.verify(request.form["password"], user[2]):
                 session['logged_in'] = True
                 session['username'] = username
-                # session.permanent = True
+                session.permanent = False
                 flash("You are now logged in")
                 global name
                 name = username
@@ -150,7 +154,7 @@ def register():
             # sets the session so user is now logged in to the app
             session['logged_in'] = True
             session['username'] = username
-            # session.permanent = True
+            session.permanent = False
             flash("Thank you for registering")
             global name
             name = username
@@ -193,8 +197,10 @@ def buystock():
             if s == None:
                 cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
                 conn.commit()
-            global info
-            info = stockInfo
+            # global info
+            # info = stockInfo
+            session['symbol'] = stockInfo[0]
+            session['stockInfo'] = stockInfo
             return redirect(url_for('confirm'))
         # return render_template("showstock.html", stockInfo=stockInfo)
     id = get_user_id()
@@ -211,9 +217,10 @@ def buystock():
 def confirm():
     error = ''
     # gets the information of the stock send and display within the template
-    global info
-    stockInfo = info
-    symbol = stockInfo[0]
+    # global info
+    # stockInfo = info
+    stockInfo = session['stockInfo']
+    symbol = session['symbol']
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
         price = stockInfo[2]
@@ -234,7 +241,9 @@ def confirm():
             cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, float(price)))
             conn.commit()
             # updates the Wallet table with the new amount of money
-            temp = float(updatedMoney)
+            temp = round(float(updatedMoney),2)
+            print("adding 2 wallet")
+            print(temp)
             cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId[0]))
             conn.commit()
             return redirect(url_for('index'))
@@ -253,14 +262,14 @@ def confirm():
         prices.append(round(a['close'],2))
     legend = "Stock Prices"
     userName = get_user_name()
-    news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
-    stockNews = json.loads(news.text)
-    newsList = []
-    for new in stockNews:
-        newList = [new['url'],new['headline'],new['summary']]
-        newsList.append(newList)
-    for test in newsList:
-        print(test)
+    # news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
+    # stockNews = json.loads(news.text)
+    # newsList = []
+    # for new in stockNews:
+    #     newList = [new['url'],new['headline'],new['summary']]
+    #     newsList.append(newList)
+    # for test in newsList:
+    #     print(test)
     return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName)
 
 #####################
@@ -269,7 +278,7 @@ def confirm():
 @login_required
 def sellstock():
     s = []
-    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
     cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(userId[0]))
     portfolio = cursor.fetchall()
@@ -302,7 +311,7 @@ def sell(username, portfolio_id):
             price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(symbol[0]))
             currentPrice = json.loads(price.text)
             # gets the user's id
-            cursor.execute("SELECT id FROM Users WHERE username = (%s)", username)
+            cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
             temp = cursor.fetchone()
             userId = temp[0]
             # calculates the price of the sale
@@ -311,7 +320,7 @@ def sell(username, portfolio_id):
             money = cursor.fetchone()
             # updates money amount with sold stocks amount
             newMoney = Decimal(total) + money[0]
-            cursor.execute("UPDATE WALLET SET money = {} WHERE user_id = {}".format(newMoney, userId))
+            cursor.execute("UPDATE Wallet SET money = {} WHERE user_id = {}".format(newMoney, userId))
             newAmount = owned[0] - int(quantity)
 
             if newAmount == 0:
