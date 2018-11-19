@@ -69,12 +69,15 @@ def temp():
 @login_required
 def index():
     s = []
-    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", session['username'])
     user = cursor.fetchone();
-    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+
+    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
+
     money = temp[0]
-    print(money)
+    print(temp)
+
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
