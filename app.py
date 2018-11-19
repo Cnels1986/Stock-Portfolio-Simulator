@@ -62,6 +62,10 @@ def get_user_name():
 #####################
 
 @app.route('/')
+def temp():
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
 @login_required
 def index():
     s = []
@@ -69,7 +73,9 @@ def index():
     user = cursor.fetchone();
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
     temp = cursor.fetchone();
-    money = round(Decimal(temp[0]), 2)
+    print(temp)
+    money = round(temp[0], 2)
+    print(money)
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
@@ -88,6 +94,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    session.clear()
     error = None
     if request.method == "POST":
         # retrieves input from the login form
@@ -120,6 +127,7 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
+    session.clear()
     if request.method == "POST":
         # retrieves input from the register form
         username = request.form["userName"]
