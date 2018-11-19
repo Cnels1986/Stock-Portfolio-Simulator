@@ -56,9 +56,10 @@ def get_user_id():
     return id
 
 def get_user_name():
-    cursor.execute("SELECT name FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT name FROM Users WHERE username = (%s)", session['username'])
     userName = cursor.fetchone()
-    return userName[0]
+    name = userName[0]
+    return name
 
 #####################
 
