@@ -112,7 +112,7 @@ def login():
             if sha256_crypt.verify(request.form["password"], user[2]):
                 session['logged_in'] = True
                 session['username'] = username
-                # session.permanent = True
+                session.permanent = False
                 flash("You are now logged in")
                 global name
                 name = username
@@ -150,7 +150,7 @@ def register():
             # sets the session so user is now logged in to the app
             session['logged_in'] = True
             session['username'] = username
-            # session.permanent = True
+            session.permanent = False
             flash("Thank you for registering")
             global name
             name = username
@@ -253,14 +253,14 @@ def confirm():
         prices.append(round(a['close'],2))
     legend = "Stock Prices"
     userName = get_user_name()
-    news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
-    stockNews = json.loads(news.text)
-    newsList = []
-    for new in stockNews:
-        newList = [new['url'],new['headline'],new['summary']]
-        newsList.append(newList)
-    for test in newsList:
-        print(test)
+    # news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
+    # stockNews = json.loads(news.text)
+    # newsList = []
+    # for new in stockNews:
+    #     newList = [new['url'],new['headline'],new['summary']]
+    #     newsList.append(newList)
+    # for test in newsList:
+    #     print(test)
     return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName)
 
 #####################
@@ -269,8 +269,10 @@ def confirm():
 @login_required
 def sellstock():
     s = []
-    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
+    print("HERE!!!!!")
+    print(userId[0])
     cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(userId[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
