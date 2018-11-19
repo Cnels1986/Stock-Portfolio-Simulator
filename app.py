@@ -197,8 +197,10 @@ def buystock():
             if s == None:
                 cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
                 conn.commit()
-            global info
-            info = stockInfo
+            # global info
+            # info = stockInfo
+            session['symbol'] = stockInfo[0]
+            session['stockInfo'] = stockInfo
             return redirect(url_for('confirm'))
         # return render_template("showstock.html", stockInfo=stockInfo)
     id = get_user_id()
@@ -215,9 +217,10 @@ def buystock():
 def confirm():
     error = ''
     # gets the information of the stock send and display within the template
-    global info
-    stockInfo = info
-    symbol = stockInfo[0]
+    # global info
+    # stockInfo = info
+    stockInfo = session['stockInfo']
+    symbol = session['symbol']
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
         price = stockInfo[2]
