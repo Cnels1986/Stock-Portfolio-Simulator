@@ -73,8 +73,7 @@ def index():
     user = cursor.fetchone();
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
     temp = cursor.fetchone();
-    print(temp)
-    money = round(temp[0], 2)
+    money = temp[0]
     print(money)
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
@@ -234,7 +233,9 @@ def confirm():
             cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, float(price)))
             conn.commit()
             # updates the Wallet table with the new amount of money
-            temp = float(updatedMoney)
+            temp = round(float(updatedMoney),2)
+            print("adding 2 wallet")
+            print(temp)
             cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId[0]))
             conn.commit()
             return redirect(url_for('index'))
@@ -271,8 +272,6 @@ def sellstock():
     s = []
     cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
-    print("HERE!!!!!")
-    print(userId[0])
     cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(userId[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
@@ -304,7 +303,7 @@ def sell(username, portfolio_id):
             price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(symbol[0]))
             currentPrice = json.loads(price.text)
             # gets the user's id
-            cursor.execute("SELECT id FROM Users WHERE username = (%s)", username)
+            cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
             temp = cursor.fetchone()
             userId = temp[0]
             # calculates the price of the sale
