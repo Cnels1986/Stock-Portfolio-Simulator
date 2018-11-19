@@ -311,7 +311,7 @@ def sell(username, portfolio_id):
             money = cursor.fetchone()
             # updates money amount with sold stocks amount
             newMoney = Decimal(total) + money[0]
-            cursor.execute("UPDATE WALLET SET money = {} WHERE user_id = {}".format(newMoney, userId))
+            cursor.execute("UPDATE Wallet SET money = {} WHERE user_id = {}".format(newMoney, userId))
             newAmount = owned[0] - int(quantity)
 
             if newAmount == 0:
