@@ -50,9 +50,10 @@ def get_money(userId):
     return money[0]
 
 def get_user_id():
-    cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
+    cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
-    return userId[0]
+    id = userId[0]
+    return i)
 
 def get_user_name():
     cursor.execute("SELECT name FROM Users WHERE username = (%s)", name)
