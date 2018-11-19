@@ -9,7 +9,7 @@ import requests
 import json
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = "thisisthesecretkey2018"
 mysql = MySQL()
 
 name = ''
