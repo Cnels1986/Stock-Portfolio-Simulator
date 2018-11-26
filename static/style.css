@@ -513,8 +513,8 @@ footer > h3{
 }
 
 .stockNews{
-  height: 800px;
-  width: 300px;
+  height: 300px;
+  width: 800px;
   position: absolute;
   right: -5px;
   top: -1000px;
@@ -526,4 +526,28 @@ footer > h3{
 
 .stockNews.openNews{
   top: 60px;
+}
+
+.leaderboard{
+  width: 500px;
+  height: 110%;
+  padding-top: 20px;
+}
+
+.leaderboard > div{
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+  margin: 0 auto;
+}
+
+.leaderBoardRow{
+  display: flex;
+  justify-content: space-between;
+}
+
+.leaderboardTable{
+  display: flex;
+  flex-direction: column;
+  border-bottom: none;
 }

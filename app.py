@@ -7,6 +7,7 @@ from decimal import Decimal
 import os
 import requests
 import json
+import operator
 
 app = Flask(__name__)
 app.secret_key = "thisisthesecretkey2018"
@@ -61,6 +62,29 @@ def get_user_name():
     name = userName[0]
     return name
 
+def find_worth(id, username):
+    s = []
+    # gets the amount remaining in the user's wallet
+    cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", username)
+    temp = cursor.fetchone();
+    money = temp[0]
+    # gets user's portfolio and gets the current prices of their stocks
+    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(id))
+    portfolio = cursor.fetchall()
+    for stock in portfolio:
+        price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
+        stockPrice = json.loads(price.text)
+        p = round(stockPrice,2)
+        stockTuple = (stock,p,round((p * stock[2]),2))
+        s.append(stockTuple)
+    # calculates user's total with in the app (wallet + stocks purchased)
+    worth = 0
+    for test in s:
+        worth = worth + (test[1] * test[0][2])
+    total = Decimal(worth) + money
+    total = round(total,2)
+    return total
+
 #####################
 
 @app.route('/')
@@ -76,23 +100,40 @@ def index():
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
-
     money = temp[0]
-    print(temp)
-
+    # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
     for stock in portfolio:
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
         stockPrice = json.loads(price.text)
-        stockTuple = (stock,round(stockPrice,2))
+        p = round(stockPrice,2)
+        stockTuple = (stock,p,round((p * stock[2]),2))
         s.append(stockTuple)
+    # calculates user's total with in the app (wallet + stocks purchased)
     worth = 0
     for test in s:
         worth = worth + (test[1] * test[0][2])
     total = Decimal(worth) + money
     total = round(total,2)
-    return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total)
+
+    userList = []
+    cursor.execute("SELECT id, username FROM Users")
+    users = cursor.fetchall()
+    for user in users:
+        id = user[0]
+        name = user[1]
+        w = find_worth(id, name)
+        thing = (name, float(w))
+        userList.append(thing)
+    userList.sort(key=lambda tup: tup[1])
+    userList.reverse()
+    for a in userList:
+        print(a)
+
+
+
+    return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total, userList=userList)
 
 #####################
 
