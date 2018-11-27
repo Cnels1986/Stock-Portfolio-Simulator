@@ -82,7 +82,9 @@
       <div class="stockInfo">
         <h3>{{ stockInfo[3] }} </h3>
         <h4><b>Company Description:</b> {{ stockInfo[4] }}</h4>
-        <button type="button" id="newsButton" class="submitButton">News</button>
+        {% if newsList %}
+          <button type="button" id="newsButton" class="submitButton">News</button>
+        {% endif %}
       </div>
     </div>
     <form class="stockSearch">
@@ -95,6 +97,16 @@
     <a href="{{ url_for('buystock') }}" class="stockLink">Continue Searching</a>
   </div>
   <div class="stockNews">
+    {% if newsList %}
+      {% for news in newsList %}
+        <div>
+          <a href="{{news[0]}}" target="_blank" class="newsLink">{{news[1]}}</a>
+          {% if news[2] != "No summary available." %}
+            <p class="newsSummary">{{news[2]}}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% endif %}
   </div>
   {% if error %}
   <p class="loggedInError">{{ error }}</p>

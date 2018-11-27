@@ -513,25 +513,25 @@ footer > h3{
 }
 
 .stockNews{
-  height: 300px;
-  width: 800px;
+  height: 600px;
+  width: 250px;
   position: absolute;
   right: -5px;
   top: -1000px;
   background-color: #d1d1d1;
-  border-radius: 10px;
   border: 5px solid #212121;
   transition: .6s;
 }
 
 .stockNews.openNews{
-  top: 60px;
+  top: 103px;
 }
 
 .leaderboard{
   width: 500px;
   height: 110%;
   padding-top: 20px;
+  padding-bottom: 15px;
 }
 
 .leaderboard > div{
@@ -550,4 +550,24 @@ footer > h3{
   display: flex;
   flex-direction: column;
   border-bottom: none;
+}
+
+.newsLink{
+  color: #212121;
+  text-decoration: none;
+  font-size: 16px;
+  line-height: 1.4;
+  padding-bottom: 6px;
+}
+
+.newsSummary{
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.stockNews > div{
+  width: 80%;
+  margin: 0 auto;
+  padding: 5px 0px 10px;
+  border-bottom: 1px solid #212121;
 }

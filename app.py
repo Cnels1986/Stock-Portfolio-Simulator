@@ -128,10 +128,6 @@ def index():
         userList.append(thing)
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
-    for a in userList:
-        print(a)
-
-
 
     return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total, userList=userList)
 
@@ -258,8 +254,6 @@ def buystock():
 def confirm():
     error = ''
     # gets the information of the stock send and display within the template
-    # global info
-    # stockInfo = info
     stockInfo = session['stockInfo']
     symbol = session['symbol']
     if request.method == 'POST':
@@ -268,7 +262,8 @@ def confirm():
         cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
         money = cursor.fetchone()
         cost = Decimal(quantity) * Decimal(price)
-
+        print(cost)
+        print(money)
         if cost <= money[0]:
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
             stockId = cursor.fetchone()
@@ -303,15 +298,15 @@ def confirm():
         prices.append(round(a['close'],2))
     legend = "Stock Prices"
     userName = get_user_name()
-    # news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
-    # stockNews = json.loads(news.text)
-    # newsList = []
-    # for new in stockNews:
-    #     newList = [new['url'],new['headline'],new['summary']]
-    #     newsList.append(newList)
-    # for test in newsList:
-    #     print(test)
-    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName)
+    news = requests.get("https://api.iextrading.com/1.0/stock/{}/news/last/3".format(symbol))
+    stockNews = json.loads(news.text)
+    newsList = []
+    for new in stockNews:
+        newList = [new['url'],new['headline'],new['summary']]
+        newsList.append(newList)
+    for test in newsList:
+        print(test)
+    return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName, newsList=newsList)
 
 #####################
 
