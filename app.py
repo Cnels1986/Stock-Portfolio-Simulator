@@ -20,8 +20,8 @@ info = ''
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
-# app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+# app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
@@ -62,6 +62,11 @@ def get_user_name():
     name = userName[0]
     return name
 
+def get_user_info():
+    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
+    userInfo = cursor.fetchone()
+    return userInfo
+
 def find_worth(id, username):
     s = []
     # gets the amount remaining in the user's wallet
@@ -95,7 +100,7 @@ def temp():
 @login_required
 def index():
     s = []
-    cursor.execute("SELECT id, username, name FROM Users WHERE username = (%s)", session['username'])
+    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
     user = cursor.fetchone();
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
@@ -117,6 +122,7 @@ def index():
     total = Decimal(worth) + money
     total = round(total,2)
 
+    # gets the data for the leaderboard of the users
     userList = []
     cursor.execute("SELECT id, username FROM Users")
     users = cursor.fetchall()
@@ -129,7 +135,10 @@ def index():
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
 
-    return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total, userList=userList)
+    userName = get_user_name()
+    user = get_user_info()
+
+    return render_template("dashboard.html", user=user, money=money, portfolio=s, total=total, userName=userName, userList=userList)
 
 #####################
 
@@ -182,7 +191,7 @@ def register():
         # user name does not exist within the database, will now add the information to the Users table
         if user == None:
             # adds new user to Users table
-            cursor.execute("INSERT INTO Users(username, password, name) VALUES(%s, %s, %s)", (thwart(username), thwart(password), thwart(real_name)))
+            cursor.execute("INSERT INTO Users(username, password, name, admin) VALUES(%s, %s, %s, false)", (thwart(username), thwart(password), thwart(real_name)))
             cursor.execute("SELECT * FROM Users WHERE userName = '{}'".format(username))
             userID = cursor.fetchone()
             cursor.execute("INSERT INTO Wallet(user_id, money) VALUES(%s, 25000.00)", (int(userID[0])))
@@ -259,28 +268,22 @@ def confirm():
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
         price = stockInfo[2]
-        cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", name)
+        cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
         money = cursor.fetchone()
         cost = Decimal(quantity) * Decimal(price)
-        print(cost)
-        print(money)
         if cost <= money[0]:
+            userId = get_user_id()
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
             stockId = cursor.fetchone()
             updatedMoney = money[0] - cost
-            cursor.execute("SELECT id FROM Users WHERE username = (%s)", name)
-            userId = cursor.fetchone()
-            cursor.execute("SELECT * FROM Portfolio JOIN Stocks ON Portfolio.stock_id = Stocks.id WHERE Portfolio.user_id = {}".format(userId[0]))
+            cursor.execute("SELECT * FROM Portfolio JOIN Stocks ON Portfolio.stock_id = Stocks.id WHERE Portfolio.user_id = {}".format(userId))
             portfolioCheck = cursor.fetchone()
-            print(portfolioCheck)
             # adds entry to portfolio table of what stocks and how much user bought and at what price
-            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId[0], stockId[0], quantity, float(price)))
+            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId, stockId[0], quantity, float(price)))
             conn.commit()
             # updates the Wallet table with the new amount of money
             temp = round(float(updatedMoney),2)
-            print("adding 2 wallet")
-            print(temp)
-            cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId[0]))
+            cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId))
             conn.commit()
             return redirect(url_for('index'))
         else:
@@ -304,8 +307,6 @@ def confirm():
     for new in stockNews:
         newList = [new['url'],new['headline'],new['summary']]
         newsList.append(newList)
-    for test in newsList:
-        print(test)
     return render_template("showstock.html", stockInfo=stockInfo, error=error, money=m, values=prices, labels=dates, legend=legend, name=userName, newsList=newsList)
 
 #####################
@@ -379,6 +380,40 @@ def logout():
     return redirect(url_for('login'))
 
 #####################
+
+@app.route('/admin')
+@login_required
+def admin():
+    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
+    info = cursor.fetchone()
+    # if the user is an admin goes to the admin page, if not will be redirected to the dashboard if they try the URL
+    if info[4] == True:
+        # selects all the users from the table other than the admin
+        cursor.execute("SELECT id, username, name FROM Users WHERE username != (%s)", session['username'])
+        users = cursor.fetchall();
+        return render_template("admin.html", users=users)
+    else:
+        return redirect(url_for('index'))
+
+####################
+
+@app.route('/remove/<int:user_id>')
+@login_required
+def remove(user_id):
+    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
+    info = cursor.fetchone()
+    # if the user is an admin goes to the admin page, if not will be redirected to the dashboard if they try the URL
+    if info[4] == True:
+        # deletes every instance of that user based on their user_id from the Wallet, Portfolio, and Users table
+        cursor.execute('DELETE FROM Wallet WHERE user_id = (%s)', user_id)
+        cursor.execute('DELETE FROM Portfolio WHERE user_id = (%s)', user_id)
+        cursor.execute('DELETE FROM Users WHERE id = (%s)', user_id)
+        conn.commit()
+        return redirect(url_for('admin'))
+    else:
+        return redirect(url_for('index'))
+
+###################
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
