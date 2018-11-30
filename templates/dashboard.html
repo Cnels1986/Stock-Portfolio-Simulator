@@ -28,8 +28,13 @@
       <span></span>
     </div>
     <p id="walletButton">Wallet</p>
+    {% if user[4] %}
+      <div class="adminLink">
+        <a href="{{ url_for('admin') }}">Admin Page</a>
+      </div>
+    {% endif %}
   </div>
-  <a href="{{ url_for('buystock' )}}" id="link1" class="navLink">
+  <a href="{{ url_for('buystock')}}" id="link1" class="navLink">
     <div class="linkPanel">
       <p class="linkText">Buy Stocks</p>
     </div>
@@ -49,8 +54,9 @@
     <p>${{money}}</p>
   </div>
   <div class="name">
-    <p>{{user[2]}}</p>
+    <p>{{userName}}</p>
   </div>
+
   <div class="dashboard formBackground">
     <div class="dashHeader">
       <h3 class="stockTitle">Portfolio:</h3>
