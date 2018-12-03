@@ -117,5 +117,19 @@ body{
 #walletButton:hover{
   color: #00ff3b;
   border: 1px solid #00ff3b;
-    border-radius: 10px;
+  border-radius: 10px;
+}
+
+#introButton{
+  margin-left: 5px;
+  padding: 10px 30px;
+  font-size: 20px;
+  color: #d1d1d1;
+  transition: all 1s;
+  border: 1px solid #d1d1d1;
+}
+#introButton:hover{
+  color: #00ff3b;
+  border: 1px solid #00ff3b;
+  border-radius: 10px;
 }

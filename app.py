@@ -20,8 +20,8 @@ info = ''
 # MySQL configurations
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-# app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
+# app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
@@ -95,6 +95,8 @@ def find_worth(id, username):
 @app.route('/')
 def temp():
     return redirect(url_for('login'))
+
+#####################
 
 @app.route('/dashboard')
 @login_required
@@ -412,6 +414,12 @@ def remove(user_id):
         return redirect(url_for('admin'))
     else:
         return redirect(url_for('index'))
+
+###################
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
 
 ###################
 

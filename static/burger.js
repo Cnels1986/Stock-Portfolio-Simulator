@@ -24,4 +24,14 @@ $(document).ready(function(){
   $("#newsButton").click(function(){
     $(".stockNews").toggleClass('openNews');
   })
+
+  // shows the introduction modal
+  $("#introButton").click(function(){
+    console.log("test");
+    $("#introModalBackground").attr('style', 'display:block');
+  })
+  // hides the introduction modal
+  $("#introModalButton").click(function(){
+    $("#introModalBackground").attr('style', 'display:none');
+  })
 })
