@@ -21,6 +21,22 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 </head>
 <body>
+
+  <div id="introModalBackground">
+    <div id="introModal">
+      <div class="introInfo">
+        <h2>How to use this app:</h2>
+        <h3><b>Purpose:</b></h3>
+        <p>This point of this app is to allow you to research and buy whatever stocks you'd like, with the purpose of making a profit. You begins with $25,000 and are free to spend it how every you'd like. This app simulates your portfolio, tracking how well you are doing based on gains and losses in the market. Try to compete with other users and make the most money.</p>
+        <p><b>Wallet:</b> the amount of money that you have available to spend.</p>
+        <p><b>Portfolio Value:</b> the amount of money you have available along with how much your bought stocks are current worth on the market.</p>
+        <p><b>Buy Stocks:</b> allows you to search for stocks based on their symbols on the market. From there you can buy whatever quantity you'd like, as long as you have enough in your wallet</p>
+        <p><b>Sell Stocks:</b> lists all of the stocks you own, and lets you sell whatever quantity of stocks you have. Stock sales are added back into your wallet. Be mindful of how the stocks are performing, patience can be a vitrue.</p>
+      </div>
+      <button type="button" id="introModalButton" class="submitButton">Get Spending</button>
+    </div>
+  </div>
+
   <div class="menu">
     <div id="burger">
       <span></span>
@@ -28,6 +44,7 @@
       <span></span>
     </div>
     <p id="walletButton">Wallet</p>
+    <p id="introButton">Introduction</p>
     {% if user[4] %}
       <div class="adminLink">
         <a href="{{ url_for('admin') }}">Admin Page</a>
