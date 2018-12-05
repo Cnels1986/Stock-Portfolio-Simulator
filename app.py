@@ -117,10 +117,10 @@ def index():
     temp = cursor.fetchone();
 
     if temp[0] == None:
-        redirect("page_not_found.html" error="temp[0]")
+        return render_template("page_not_found.html" error="temp[0]")
     print("Money from the wallet --------")
     print(temp[0])
-    
+
     money = temp[0]
 
     # builds a list of the user's portfolio to send to the dashboard template
