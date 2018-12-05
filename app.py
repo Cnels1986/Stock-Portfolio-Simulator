@@ -117,7 +117,7 @@ def index():
     temp = cursor.fetchone();
 
     if temp[0] == None:
-        return render_template("page_not_found.html" error="temp[0]")
+        return render_template("page_not_found.html", error="temp[0]")
     print("Money from the wallet --------")
     print(temp[0])
 
