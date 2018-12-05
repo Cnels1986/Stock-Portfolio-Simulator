@@ -110,8 +110,8 @@ def temp():
 @login_required
 def index():
     s = []
-    # cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
-    user = get_user_name()
+    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
+    user = cursor.fetchone();
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
@@ -121,7 +121,7 @@ def index():
     # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
-    print('Porfolio from dashboard ---------')
+    print("Portfolio from dashboard ---------")
     print(portfolio)
     for stock in portfolio:
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
