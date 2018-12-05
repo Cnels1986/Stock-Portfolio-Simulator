@@ -48,23 +48,31 @@ def login_required(f):
 def get_money(userId):
     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
     money = cursor.fetchone()
+    print("get_money result -------")
+    print(money)
     return money[0]
 
 def get_user_id():
     cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
     id = userId[0]
+    print("get_user_id result --------")
+    print(id)
     return id
 
 def get_user_name():
     cursor.execute("SELECT name FROM Users WHERE username = (%s)", session['username'])
     userName = cursor.fetchone()
     name = userName[0]
+    print("get_user_name result --------")
+    print(name)
     return name
 
 def get_user_info():
     cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
     userInfo = cursor.fetchone()
+    print("get_user_info result --------")
+    print(userInfo)
     return userInfo
 
 def find_worth(id, username):
@@ -102,15 +110,19 @@ def temp():
 @login_required
 def index():
     s = []
-    cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
-    user = cursor.fetchone();
+    # cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
+    user = get_user_name()
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
+    print("Money from the wallet --------")
+    print(temp[0])
     money = temp[0]
     # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
+    print('Porfolio from dashboard ---------')
+    print(portfolio)
     for stock in portfolio:
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
         stockPrice = json.loads(price.text)
@@ -245,8 +257,9 @@ def buystock():
             if s == None:
                 cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
                 conn.commit()
-            # global info
-            # info = stockInfo
+            cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
+            stockid = cursor.fetchone()
+            stockInfo.append(stockid[0])
             session['symbol'] = stockInfo[0]
             session['stockInfo'] = stockInfo
             return redirect(url_for('confirm'))
@@ -270,19 +283,19 @@ def confirm():
     if request.method == 'POST':
         quantity = request.form['modalQuantity']
         price = stockInfo[2]
+        stockid = stockInfo[5]
         cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
         money = cursor.fetchone()
         cost = Decimal(quantity) * Decimal(price)
         if cost <= money[0]:
             userId = get_user_id()
+            print(symbol)
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
             stockId = cursor.fetchone()
             updatedMoney = money[0] - cost
-            cursor.execute("SELECT * FROM Portfolio JOIN Stocks ON Portfolio.stock_id = Stocks.id WHERE Portfolio.user_id = {}".format(userId))
-            portfolioCheck = cursor.fetchone()
             # adds entry to portfolio table of what stocks and how much user bought and at what price
-            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId, stockId[0], quantity, float(price)))
-            conn.commit()
+            cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId, stockid, quantity, float(price)))
+            print(stockId[0])
             # updates the Wallet table with the new amount of money
             temp = round(float(updatedMoney),2)
             cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId))
