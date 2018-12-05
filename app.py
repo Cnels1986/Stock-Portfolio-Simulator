@@ -48,31 +48,31 @@ def login_required(f):
 def get_money(userId):
     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
     money = cursor.fetchone()
-    print("get_money result -------")
-    print(money)
+    if money == None:
+        return render_template("page_not_found.html", error="get_money")
     return money[0]
 
 def get_user_id():
     cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
     userId = cursor.fetchone()
     id = userId[0]
-    print("get_user_id result --------")
-    print(id)
+    if id == None:
+        return render_template("page_not_found.html", error="get_user_id")
     return id
 
 def get_user_name():
     cursor.execute("SELECT name FROM Users WHERE username = (%s)", session['username'])
     userName = cursor.fetchone()
     name = userName[0]
-    print("get_user_name result --------")
-    print(name)
+    if name == None:
+        return render_template("page_not_found.html", error="get_user_name")
     return name
 
 def get_user_info():
     cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
     userInfo = cursor.fetchone()
-    print("get_user_info result --------")
-    print(userInfo)
+    if userInfo == None:
+        return render_template("page_not_found.html", error="get_user_info")
     return userInfo
 
 def find_worth(id, username):
@@ -80,10 +80,14 @@ def find_worth(id, username):
     # gets the amount remaining in the user's wallet
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", username)
     temp = cursor.fetchone();
+    if temp == None:
+        return render_template("page_not_found.html", error="find_worth - temp")
     money = temp[0]
     # gets user's portfolio and gets the current prices of their stocks
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {}".format(id))
     portfolio = cursor.fetchall()
+    if portfolio == None:
+        return render_template("page_not_found.html", error="find_worth - portfolio")
     for stock in portfolio:
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
         stockPrice = json.loads(price.text)
@@ -112,12 +116,14 @@ def index():
     s = []
     cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
     user = cursor.fetchone();
+    if user == None:
+        return render_template("page_not_found.html", error="dashboard - user")
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
 
     if temp == None:
-        return render_template("page_not_found.html", error="temp")
+        return render_template("page_not_found.html", error="dashboard - temp")
     print("Money from the wallet --------")
     print(temp[0])
 
@@ -125,6 +131,9 @@ def index():
 
     # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
+    if portfolio == None:
+        return render_template("page_not_found.html", error="dashboard - portfolio")
+
     portfolio = cursor.fetchall()
     print("Portfolio from dashboard ---------")
     print(portfolio)
@@ -149,6 +158,8 @@ def index():
     userList = []
     cursor.execute("SELECT id, username FROM Users")
     users = cursor.fetchall()
+    if users == None:
+        return render_template("page_not_found.html", error="dashboard - users")
     for user in users:
         id = user[0]
         name = user[1]
@@ -177,6 +188,8 @@ def login():
         cursor.execute("SELECT * FROM Users WHERE username = (%s)", thwart(username))
         # retrieves hashed password from the Users table
         user = cursor.fetchone()
+        if temp == None:
+            return render_template("page_not_found.html", error="login - user")
 
         # user name does not exist within the Users table
         if user == None:
@@ -217,6 +230,8 @@ def register():
             cursor.execute("INSERT INTO Users(username, password, name, admin) VALUES(%s, %s, %s, false)", (thwart(username), thwart(password), thwart(real_name)))
             cursor.execute("SELECT * FROM Users WHERE userName = '{}'".format(username))
             userID = cursor.fetchone()
+            if userID == None:
+                return render_template("page_not_found.html", error="register - userID")
             cursor.execute("INSERT INTO Wallet(user_id, money) VALUES(%s, 25000.00)", (int(userID[0])))
             conn.commit()
             # conn.close()
@@ -262,12 +277,16 @@ def buystock():
             symbol = companyInfo['symbol']
             cursor.execute("SELECT * FROM Stocks WHERE symbol = (%s)", symbol)
             s = cursor.fetchone()
+            if s == None:
+                return render_template("page_not_found.html", error="buy - s")
             # stock is currently not in the stocks table
             if s == None:
                 cursor.execute("INSERT INTO Stocks(symbol, name) VALUES (%s, %s)", (symbol, name))
                 conn.commit()
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
             stockid = cursor.fetchone()
+            if stockid == None:
+                return render_template("page_not_found.html", error="buy - stockid")
             stockInfo.append(stockid[0])
             session['symbol'] = stockInfo[0]
             session['stockInfo'] = stockInfo
@@ -277,6 +296,8 @@ def buystock():
     m = get_money(id)
     cursor.execute("SELECT * FROM Stocks ORDER BY id DESC LIMIT 10")
     stocks = cursor.fetchall()
+    if stocks == None:
+        return render_template("page_not_found.html", error="buy - stocks")
     userName = get_user_name()
     return render_template('buy.html', money=m, error=error, name=userName, stocks=stocks)
 
@@ -295,6 +316,8 @@ def confirm():
         stockid = stockInfo[5]
         cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
         money = cursor.fetchone()
+        if money == None:
+            return render_template("page_not_found.html", error="confirm - money")
         print("Confirm: money --------")
         print(money)
         cost = Decimal(quantity) * Decimal(price)
@@ -305,6 +328,8 @@ def confirm():
             print(symbol)
             cursor.execute("SELECT id FROM Stocks WHERE symbol = (%s)", symbol)
             stockId = cursor.fetchone()
+            if stockId == None:
+                return render_template("page_not_found.html", error="confirm - stockId")
             updatedMoney = money[0] - cost
             # adds entry to portfolio table of what stocks and how much user bought and at what price
             print("Confirm: userId, stockId, quantity, price")
@@ -350,10 +375,12 @@ def confirm():
 @login_required
 def sellstock():
     s = []
-    cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
-    userId = cursor.fetchone()
+    # cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
+    userId = get_user_id()
     cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(userId[0]))
     portfolio = cursor.fetchall()
+    if portfolio == None:
+        return render_template("page_not_found.html", error="sell - portfolio")
     for stock in portfolio:
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[1]))
         stockPrice = json.loads(price.text)
@@ -379,17 +406,23 @@ def sell(username, portfolio_id):
             # retrieves stock symbol that the user is selling
             cursor.execute("SELECT Stocks.symbol FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE Portfolio.id = {}".format(portfolio_id))
             symbol = cursor.fetchone()
+            if symbol == None:
+                return render_template("page_not_found.html", error="confirmsale - symbol")
             # gets updated stock price
             price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(symbol[0]))
             currentPrice = json.loads(price.text)
             # gets the user's id
             cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
             temp = cursor.fetchone()
+            if temp == None:
+                return render_template("page_not_found.html", error="confirmsale - temp")
             userId = temp[0]
             # calculates the price of the sale
             total = int(quantity) * currentPrice
             cursor.execute("SELECT money FROM Wallet WHERE id = {}".format(userId))
             money = cursor.fetchone()
+            if money == None:
+                return render_template("page_not_found.html", error="confirmsale - money")
             # updates money amount with sold stocks amount
             newMoney = Decimal(total) + money[0]
             cursor.execute("UPDATE Wallet SET money = {} WHERE user_id = {}".format(newMoney, userId))
@@ -421,11 +454,15 @@ def logout():
 def admin():
     cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
     info = cursor.fetchone()
+    if info == None:
+        return render_template("page_not_found.html", error="admin - info")
     # if the user is an admin goes to the admin page, if not will be redirected to the dashboard if they try the URL
     if info[4] == True:
         # selects all the users from the table other than the admin
         cursor.execute("SELECT id, username, name FROM Users WHERE username != (%s)", session['username'])
         users = cursor.fetchall();
+        if users == None:
+            return render_template("page_not_found.html", error="admin - users")
         return render_template("admin.html", users=users)
     else:
         return redirect(url_for('index'))

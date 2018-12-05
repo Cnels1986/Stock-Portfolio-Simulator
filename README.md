@@ -4,10 +4,14 @@ This application will allow users to sign up and register for it. Once signed ou
 
 ## Getting Started
 
+Locally:
 export FLASK_APP=app.py
 export FLASK_ENV=development
 . venv/bin/activate
 flask run
+
+Deployed:
+https://stock-portfolio-simulator.herokuapp.com/login
 
 ### Prerequisites
 
