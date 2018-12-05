@@ -115,9 +115,14 @@ def index():
 
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
+
+    if temp[0] == None:
+        redirect("page_not_found.html" error="temp[0]")
     print("Money from the wallet --------")
     print(temp[0])
+    
     money = temp[0]
+
     # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
     portfolio = cursor.fetchall()
