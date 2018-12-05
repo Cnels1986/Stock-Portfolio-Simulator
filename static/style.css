@@ -544,6 +544,10 @@ a{
   justify-content: flex-end;
 }
 
+.panel > div > h3{
+  font-size: 20px;
+}
+
 .percentChange{
   text-align: right;
 
