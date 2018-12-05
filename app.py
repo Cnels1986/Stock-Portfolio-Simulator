@@ -131,10 +131,9 @@ def index():
 
     # builds a list of the user's portfolio to send to the dashboard template
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(user[0]))
+    portfolio = cursor.fetchall()
     if portfolio == None:
         return render_template("page_not_found.html", error="dashboard - portfolio")
-
-    portfolio = cursor.fetchall()
     print("Portfolio from dashboard ---------")
     print(portfolio)
     for stock in portfolio:
