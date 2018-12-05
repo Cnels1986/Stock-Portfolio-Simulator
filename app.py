@@ -129,12 +129,16 @@ def index():
         p = round(stockPrice,2)
         stockTuple = (stock,p,round((p * stock[2]),2))
         s.append(stockTuple)
+    print("Dashboard: portfolio prices --------")
+    print(s)
     # calculates user's total with in the app (wallet + stocks purchased)
     worth = 0
     for test in s:
         worth = worth + (test[1] * test[0][2])
     total = Decimal(worth) + money
     total = round(total,2)
+    print("Dashboard: total -------")
+    print(total)
 
     # gets the data for the leaderboard of the users
     userList = []
@@ -286,7 +290,11 @@ def confirm():
         stockid = stockInfo[5]
         cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
         money = cursor.fetchone()
+        print("Confirm: money --------")
+        print(money)
         cost = Decimal(quantity) * Decimal(price)
+        print("Confirm: cost ---------")
+        print(cost)
         if cost <= money[0]:
             userId = get_user_id()
             print(symbol)
@@ -294,10 +302,17 @@ def confirm():
             stockId = cursor.fetchone()
             updatedMoney = money[0] - cost
             # adds entry to portfolio table of what stocks and how much user bought and at what price
+            print("Confirm: userId, stockId, quantity, price")
+            print(userId)
+            print(stockId)
+            print(quantity)
+            print(float(price))
             cursor.execute("INSERT INTO Portfolio(user_id, stock_id, amount, price) VALUES({},{},{},{})".format(userId, stockid, quantity, float(price)))
             print(stockId[0])
             # updates the Wallet table with the new amount of money
             temp = round(float(updatedMoney),2)
+            print("Confirm: temp (updated wallet amount) -------")
+            print(temp)
             cursor.execute("UPDATE Wallet SET money=(%f) WHERE user_id = (%i)" % (temp, userId))
             conn.commit()
             return redirect(url_for('index'))
