@@ -116,8 +116,8 @@ def index():
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.username = (%s)", session['username'])
     temp = cursor.fetchone();
 
-    if temp[0] == None:
-        return render_template("page_not_found.html", error="temp[0]")
+    if temp == None:
+        return render_template("page_not_found.html", error="temp")
     print("Money from the wallet --------")
     print(temp[0])
 
