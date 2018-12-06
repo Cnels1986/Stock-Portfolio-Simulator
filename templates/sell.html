@@ -50,6 +50,9 @@
   <div class="name">
     <p>{{name}}</p>
   </div>
+  {% if error %}
+    <p>{{error}}</p>
+  {% endif %}
   <div class="formBackground sellContainer">
     {% if portfolio %}
       {% for stock in portfolio %}

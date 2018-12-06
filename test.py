@@ -3,7 +3,6 @@ import unittest
 
 
 class FlaskTestCase(unittest.TestCase):
-
     def test_login_route(self):
         tester = app.test_client(self)
         response = tester.get('/login', content_type='html/text')
@@ -23,6 +22,14 @@ class FlaskTestCase(unittest.TestCase):
     def test_sell_route(self):
         tester = app.test_client(self)
         response = tester.get('/sell', content_type='html/text')
+        self.assertEqual(response.status_code, 302)
+    def test_buy_route(self):
+        tester = app.test_client(self)
+        response = tester.get('/buy', content_type='html/text')
+        self.assertEqual(response.status_code, 302)
+    def test_confirm_route(self):
+        tester = app.test_client(self)
+        response = tester.get('/confirm ', content_type='html/text')
         self.assertEqual(response.status_code, 302)
 
 if __name__ == '__main__':
