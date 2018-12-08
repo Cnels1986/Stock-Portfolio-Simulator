@@ -54,29 +54,36 @@
     <p>{{error}}</p>
   {% endif %}
   <div class="formBackground sellContainer">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{message}}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% if portfolio %}
       {% for stock in portfolio %}
         <div class="sellStock">
           <div class="sellStockInfo">
             <div class="stock_info">
-              <h3>{{ stock[0][2]}}</h3>
-              <h2 id="stock">{{ stock[0][1]}}</h2>
+              <h3>{{ stock[0][1]}}</h3>
+              <h2 id="stock">{{ stock[0][0]}}</h2>
             </div>
             <div class="priceInfo">
-              <h4>You own: {{ stock[0][3]}}</h4>
+              <h4>You own: {{ stock[0][2]}}</h4>
               <div>
                 <p>Current Price: $ </p>
                 <p class="currentPrice">{{stock[1]}}</p>
               </div>
               <div>
                 <p>Purchased Price: $ </p>
-                <p class="purchasePrice">{{stock[0][4]}}</p>
+                <p class="purchasePrice">{{stock[0][3]}}</p>
               </div>
               <p class="percentChange"></p>
             </div>
           </div>
           <div class="sellForm">
-            <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0][0])}}>
+            <form method="post" action={{ url_for('sell', username=name, portfolio_id=stock[0][4])}}>
               <label for="sellStock">How many would you like to sell?</label>
               <input type="number" name="sellStock" id="sellStock" ref="sellStock" class="input"  required  />
               <button type="submit" id="sellButton">Sell</button>
