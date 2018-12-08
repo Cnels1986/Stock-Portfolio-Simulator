@@ -46,7 +46,7 @@ def login_required(f):
 # functions are used to grab certain data from the database and returns it
 
 def find_worth(id):
-    s = []
+    # s = []
     # gets the amount remaining in the user's wallet
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.id = {}".format(id))
     temp = cursor.fetchone();
@@ -55,8 +55,8 @@ def find_worth(id):
     portfolio = get_portfolio()
     # calculates user's total with in the app (wallet + stocks purchased)
     worth = 0
-    for test in s:
-        worth = worth + (test[1] * test[0][2])
+    for stock in portfolio:
+        worth = worth + stock[2]
     total = Decimal(worth) + money
     total = round(total,2)
     return float(total)
@@ -68,10 +68,12 @@ def get_portfolio():
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price, Portfolio.id FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(id))
     portfolio = cursor.fetchall()
     for stock in portfolio:
+        # gets current price of the stock
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
         stockPrice = json.loads(price.text)
         p = round(stockPrice,2)
-        stockTuple = (stock,p,round((p * stock[2]),2))
+        # creates a tuple which contains the stock info(stock), current price, and the worth of the stocks owned (current price * quantity)
+        stockTuple = (stock, p, round((p * stock[2]),2))
         s.append(stockTuple)
     return s
 
@@ -102,8 +104,11 @@ def index():
     userList.append((session['username'], total))
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
+    portfolio = get_portfolio()
+    for thing in portfolio:
+        print(thing)
 
-    return render_template("dashboard.html", user=user, money=money, portfolio=get_portfolio(), total=total, userName=userName, userList=userList)
+    return render_template("dashboard.html", user=user, money=money, portfolio=portfolio, total=total, userName=userName, userList=userList)
 
 #####################
 
