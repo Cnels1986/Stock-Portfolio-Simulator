@@ -288,6 +288,8 @@ def sellstock():
     #     stockTuple = (stock, round(stockPrice,2))
     #     s.append(stockTuple)
     s = get_portfolio()
+    for x in s:
+        print(x)
     money = session['wallet']
     userName = session['username']
     return render_template('sell.html', portfolio=s, name=userName, money=money)
