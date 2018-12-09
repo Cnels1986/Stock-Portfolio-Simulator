@@ -105,6 +105,7 @@ def index():
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
     portfolio = get_portfolio()
+    print("---Dashboard---")
     for thing in portfolio:
         print(thing)
 
@@ -293,6 +294,7 @@ def sellstock():
     #     stockTuple = (stock, round(stockPrice,2))
     #     s.append(stockTuple)
     s = get_portfolio()
+    print("---Sell---")
     for x in s:
         print(x)
     money = session['wallet']
