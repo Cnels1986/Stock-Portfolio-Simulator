@@ -45,30 +45,8 @@ def login_required(f):
 
 # functions are used to grab certain data from the database and returns it
 
-# def get_money(userId):
-#     cursor.execute("SELECT money FROM Wallet WHERE user_id = {}".format(userId))
-#     money = cursor.fetchone()
-#     return money[0]
-#
-# def get_user_id():
-#     cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
-#     userId = cursor.fetchone()
-#     id = userId[0]
-#     return id
-#
-# def get_user_name():
-#     cursor.execute("SELECT name FROM Users WHERE username = (%s)", session['username'])
-#     userName = cursor.fetchone()
-#     name = userName[0]
-#     return name
-#
-# def get_user_info():
-#     cursor.execute("SELECT * FROM Users WHERE username = (%s)", session['username'])
-#     userInfo = cursor.fetchone()
-#     return userInfo
-
 def find_worth(id):
-    s = []
+    # s = []
     # gets the amount remaining in the user's wallet
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.id = {}".format(id))
     temp = cursor.fetchone();
@@ -77,8 +55,8 @@ def find_worth(id):
     portfolio = get_portfolio()
     # calculates user's total with in the app (wallet + stocks purchased)
     worth = 0
-    for test in s:
-        worth = worth + (test[1] * test[0][2])
+    for stock in portfolio:
+        worth = worth + stock[2]
     total = Decimal(worth) + money
     total = round(total,2)
     return float(total)
@@ -87,14 +65,15 @@ def get_portfolio():
     id = session['userid']
     # builds a list of the user's portfolio to send to the dashboard template
     s = []
-    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(id))
+    cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price, Portfolio.id FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(id))
     portfolio = cursor.fetchall()
-    # session['portfolio'] = portfolio
     for stock in portfolio:
+        # gets current price of the stock
         price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[0]))
         stockPrice = json.loads(price.text)
         p = round(stockPrice,2)
-        stockTuple = (stock,p,round((p * stock[2]),2))
+        # creates a tuple which contains the stock info(stock), current price, and the worth of the stocks owned (current price * quantity)
+        stockTuple = (stock, p, round((p * stock[2]),2))
         s.append(stockTuple)
     return s
 
@@ -125,8 +104,12 @@ def index():
     userList.append((session['username'], total))
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
+    portfolio = get_portfolio()
+    print("---Dashboard---")
+    for thing in portfolio:
+        print(thing)
 
-    return render_template("dashboard.html", user=user, money=money, portfolio=get_portfolio(), total=total, userName=userName, userList=userList)
+    return render_template("dashboard.html", user=user, money=money, portfolio=portfolio, total=total, userName=userName, userList=userList)
 
 #####################
 
@@ -157,7 +140,6 @@ def login():
                 session['wallet'] = float(wallet[0])
                 session['userInfo'] = user
                 session.permanent = False
-                flash("You are now logged in")
                 return redirect(url_for('index'))
             else:
                 error = "Incorrect Login Credentials"
@@ -198,7 +180,6 @@ def register():
             session['wallet'] = 25000.00
             session['userInfo'] = userID
             session.permanent = False
-            flash("Thank you for registering")
             return redirect(url_for('index'))
         else:
             error = "Username already exists"
@@ -303,17 +284,19 @@ def confirm():
 @app.route('/sell')
 @login_required
 def sellstock():
-    s = []
-    # cursor.execute("SELECT id FROM Users WHERE username = (%s)", session['username'])
-    # userId = session['userid']
-    cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(session['userid']))
-    portfolio = cursor.fetchall()
-    # portfolio = session['portfolio']
-    for stock in portfolio:
-        price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[1]))
-        stockPrice = json.loads(price.text)
-        stockTuple = (stock, round(stockPrice,2))
-        s.append(stockTuple)
+    # s = []
+    # cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(session['userid']))
+    # portfolio = cursor.fetchall()
+    # # portfolio = session['portfolio']
+    # for stock in portfolio:
+    #     price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[1]))
+    #     stockPrice = json.loads(price.text)
+    #     stockTuple = (stock, round(stockPrice,2))
+    #     s.append(stockTuple)
+    s = get_portfolio()
+    print("---Sell---")
+    for x in s:
+        print(x)
     money = session['wallet']
     userName = session['username']
     return render_template('sell.html', portfolio=s, name=userName, money=money)
@@ -330,7 +313,9 @@ def sell(username, portfolio_id):
         owned = cursor.fetchone()
         if int(quantity) > owned[0]:
             error = "Not enough owned"
-            # return redirect(url_for('sell', portfolio=get_portfolio(), name=session['username'], money=session['wallet'], error=error))
+            flash('Not enough stock owned')
+            return redirect(url_for('sellstock'))
+            # return render_template('sell.html', portfolio=get_portfolio(), name=session['username'], money=session['wallet'], error=error)
         else:
             # retrieves stock symbol that the user is selling
             cursor.execute("SELECT Stocks.symbol FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE Portfolio.id = {}".format(portfolio_id))
@@ -342,13 +327,11 @@ def sell(username, portfolio_id):
             userId = session['userid']
             # calculates the price of the sale
             total = int(quantity) * currentPrice
-            # cursor.execute("SELECT money FROM Wallet WHERE id = {}".format(userId))
             money = session['wallet']
             # updates money amount with sold stocks amount
             newMoney = total + money
             cursor.execute("UPDATE Wallet SET money = {} WHERE user_id = {}".format(newMoney, userId))
             newAmount = owned[0] - int(quantity)
-
             if newAmount == 0:
                 cursor.execute("DELETE FROM Portfolio WHERE id = {}".format(portfolio_id))
                 conn.commit()
@@ -405,6 +388,6 @@ def remove(user_id):
 ###################
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, TEMPLATES_AUTO_RELOAD=True)
 
 name = ''
