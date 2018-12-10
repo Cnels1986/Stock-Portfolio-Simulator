@@ -4,82 +4,44 @@ This application will allow users to sign up and register for it. Once signed ou
 
 ## Getting Started
 
-Locally:
-export FLASK_APP=app.py
-export FLASK_ENV=development
-. venv/bin/activate
-flask run
-
 Deployed:
-https://stock-portfolio-simulator.herokuapp.com/login
+https://stock-portfolio-simulator.herokuapp.com
 
 ### Prerequisites
 
-See requirements.txt
-
-```
-Give examples
-```
+Requires Python 3 to be installed to use. Follow the Installing section to get the correct dependencies for the app. Internet access is also required to access the remote database and use the IEX API to get the stock information.
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+Dependencies must be installed before the application can work properly.
 
 ```
-Give the example
+export FLASK_APP=app.py
+export FLASK_ENV=development
+. venv/bin/activate
+$pip install -r requirements.txt
 ```
 
-And repeat
+This will create a virtual environment locally and will install the needed dependencies found in the requirements.txt file
 
-```
-until finished
-```
+## Usage
 
-End with an example of getting some data out of the system or using it for a little demo
+Users will be required to sign up for the app in order to use it. Once registered/logged in, users will be able to buy and sell stocks based on their current prices on the market. The purpose of this application is to let users try and compete with one another to see who can make the most profits from their original $25,000. The Buy Stocks page lets user search for stocks based on their symbol and then buy those stocks as long as they have enough cash available. The Sell Stocks pages lets the user sell any of the stocks they've bought at their current price.
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
+To run the automated tests use the command:
 
 ```
-Give an example
+python3 test.py
 ```
 
-### And coding style tests
+## Credit
 
-Explain what these tests test and why
+This app uses the IEX trading API to retrieve all the data on each of the stocks. API documentation can be found at:
 
-```
-Give an example
-```
+https://iextrading.com/developer/docs/
 
-## Deployment
+## Author
 
-
-## Built With
-
-
-## Contributing
-
-
-## Versioning
-
-
-## Authors
-
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+Chris Nelson 2018

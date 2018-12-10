@@ -743,3 +743,26 @@ footer > h3{
   text-align: center;
   padding-top: 20px;
 }
+
+.infoLinks > p{
+  text-align: center;
+  font-size: 20px;
+}
+
+.infoLinks > div{
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.infoLinks > div > a{
+  text-decoration: none;
+  color: #212121;
+  transition: 1s all;
+}
+
+.infoLinks > div > a:hover{
+  color: #00ff3b;
+}

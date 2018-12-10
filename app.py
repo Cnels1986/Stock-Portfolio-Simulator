@@ -21,7 +21,6 @@ info = ''
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
 app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
-# app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
 mysql.init_app(app)
 
@@ -45,14 +44,14 @@ def login_required(f):
 
 # functions are used to grab certain data from the database and returns it
 
+# function gets the worth of the user's portfolio (current price of stocks owned and the amount in user's wallet)
 def find_worth(id):
-    # s = []
     # gets the amount remaining in the user's wallet
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.id = {}".format(id))
     temp = cursor.fetchone();
     money = temp[0]
     # gets user's portfolio and gets the current prices of their stocks
-    portfolio = get_portfolio()
+    portfolio = get_portfolio(id)
     # calculates user's total with in the app (wallet + stocks purchased)
     worth = 0
     for stock in portfolio:
@@ -61,8 +60,8 @@ def find_worth(id):
     total = round(total,2)
     return float(total)
 
-def get_portfolio():
-    id = session['userid']
+# function builds a list of all the stocks the user owns, gets their current prices, and figures out how much they're worth (quantity * price)
+def get_portfolio(id):
     # builds a list of the user's portfolio to send to the dashboard template
     s = []
     cursor.execute("SELECT Stocks.symbol, Stocks.name, amount, price, Portfolio.id FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(id))
@@ -79,6 +78,7 @@ def get_portfolio():
 
 #####################
 
+# redirects to the dashboard route if user is logged in, if not will go to the login page
 @app.route('/')
 def temp():
     return redirect(url_for('login'))
@@ -88,7 +88,7 @@ def temp():
 @app.route('/dashboard')
 @login_required
 def index():
-    user = session['userInfo']
+    userInfo = session['userInfo']
     userName = session['name']
     money = session['wallet']
     total = find_worth(session['userid'])
@@ -104,15 +104,12 @@ def index():
     userList.append((session['username'], total))
     userList.sort(key=lambda tup: tup[1])
     userList.reverse()
-    portfolio = get_portfolio()
-    print("---Dashboard---")
-    for thing in portfolio:
-        print(thing)
-
-    return render_template("dashboard.html", user=user, money=money, portfolio=portfolio, total=total, userName=userName, userList=userList)
+    portfolio = get_portfolio(session['userid'])
+    return render_template("dashboard.html", user=userInfo, money=money, portfolio=portfolio, total=total, userName=userName, userList=userList)
 
 #####################
 
+# route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session.clear()
@@ -139,6 +136,7 @@ def login():
                 wallet = cursor.fetchone();
                 session['wallet'] = float(wallet[0])
                 session['userInfo'] = user
+                print(session['userInfo'])
                 session.permanent = False
                 return redirect(url_for('index'))
             else:
@@ -148,6 +146,7 @@ def login():
 
 #####################
 
+# route for the registration page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
@@ -188,6 +187,7 @@ def register():
 
 #####################
 
+# route is where users will search stocks on symbols
 @app.route('/buy', methods=['GET', 'POST'])
 @login_required
 def buystock():
@@ -233,6 +233,7 @@ def buystock():
 
 #####################
 
+# route confirms purchase of stocks, updates the users wallet and portfolio
 @app.route('/confirm', methods=['GET', 'POST'])
 @login_required
 def confirm():
@@ -281,19 +282,11 @@ def confirm():
 
 #####################
 
+# route lists all the stocks within the user's portfolio and allows the user to sell any of their stocks, as long as they own enough of it
 @app.route('/sell')
 @login_required
 def sellstock():
-    # s = []
-    # cursor.execute("SELECT Portfolio.id, Stocks.symbol, Stocks.name, amount, price FROM Portfolio JOIN Stocks on Stocks.id = Portfolio.stock_id WHERE user_id = {} ORDER BY Stocks.name".format(session['userid']))
-    # portfolio = cursor.fetchall()
-    # # portfolio = session['portfolio']
-    # for stock in portfolio:
-    #     price = requests.get("https://api.iextrading.com/1.0/stock/{}/price".format(stock[1]))
-    #     stockPrice = json.loads(price.text)
-    #     stockTuple = (stock, round(stockPrice,2))
-    #     s.append(stockTuple)
-    s = get_portfolio()
+    s = get_portfolio(session['userid'])
     print("---Sell---")
     for x in s:
         print(x)
@@ -303,6 +296,7 @@ def sellstock():
 
 #####################
 
+# route does the actual selling of the stock, if they have enough it will update the portfolio table and change the amount of money within the user's wallet
 @app.route('/confirmsale/<username>/<portfolio_id>', methods=['POST'])
 @login_required
 def sell(username, portfolio_id):
@@ -312,7 +306,6 @@ def sell(username, portfolio_id):
         cursor.execute("SELECT amount FROM Portfolio WHERE id = {}".format(portfolio_id))
         owned = cursor.fetchone()
         if int(quantity) > owned[0]:
-            error = "Not enough owned"
             flash('Not enough stock owned')
             return redirect(url_for('sellstock'))
             # return render_template('sell.html', portfolio=get_portfolio(), name=session['username'], money=session['wallet'], error=error)
@@ -332,9 +325,11 @@ def sell(username, portfolio_id):
             newMoney = total + money
             cursor.execute("UPDATE Wallet SET money = {} WHERE user_id = {}".format(newMoney, userId))
             newAmount = owned[0] - int(quantity)
+            # if user is selling all of that stock, removes it from the portfolio
             if newAmount == 0:
                 cursor.execute("DELETE FROM Portfolio WHERE id = {}".format(portfolio_id))
                 conn.commit()
+            # else just updates the quantity in the portfolio
             else:
                 cursor.execute("UPDATE Portfolio SET amount = {} WHERE id = {}".format(newAmount, portfolio_id))
                 conn.commit()
@@ -353,6 +348,7 @@ def logout():
 
 #####################
 
+# routes leads to the admin page where user profiles can be deleted as need be. Only accessable to admins
 @app.route('/admin')
 @login_required
 def admin():
@@ -369,6 +365,7 @@ def admin():
 
 ####################
 
+# route removes the actual user's profile from the database as well as removes everything from the wallet and portfolio tables
 @app.route('/remove/<int:user_id>')
 @login_required
 def remove(user_id):
