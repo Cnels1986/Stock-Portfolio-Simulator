@@ -49,7 +49,7 @@ def find_worth(id):
     # gets the amount remaining in the user's wallet
     cursor.execute("SELECT money FROM Wallet JOIN Users on Wallet.user_id = Users.id WHERE Users.id = {}".format(id))
     temp = cursor.fetchone();
-    display(temp[0])
+    print(temp[0])
     money = temp[0]
     # gets user's portfolio and gets the current prices of their stocks
     portfolio = get_portfolio(id)
