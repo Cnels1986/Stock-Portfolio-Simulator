@@ -1,0 +1,19 @@
+Approach Statement:
+
+This application was created using Python 3 and uses the Flask framework for the bulk of it. In addition, I used the IEX Trading API to retrieve the necessary information about the different stocks. The application itself is deployed on Heroku:
+
+https://stock-portfolio-simulator.herokuapp.com
+
+And the remote database is currently set up on Google's Cloud SQL. I used the Cloud SQL because the app was set up using MySQL, which Cloud SQL was one of the only remote database platforms to support it. I tried Amazon's AWS for a remote database but did not have much success.
+
+
+Several dependencies were used for different parts of the API (see requirements.txt). These include:
+
+- Flask-MySQL & Flask-MySQLdb - allowed me to use mysql within the application and also connect to the database using cursor()
+
+-gunicorn - used to get the app working once deployed to heroku
+
+-passlib - used to encrypt user's passwords to store
+
+
+I also used charts.js (https://www.chartjs.org/) for the data visualization part of the project. I found this Javascript library mainly because I wanted to be able to customize and style the graph itself. Animations were also a plus.

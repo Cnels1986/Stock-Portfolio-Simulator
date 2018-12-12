@@ -1,0 +1,13 @@
+Threat Model:
+
+Access to user's accounts:
+  Users should not be able to access other user accounts, so a username and password are used to regulate this. Once a user logs in, they can use the app under their name, they are unable to do anything in another account. When storing a user's password upon registration, I used SHA256 encryption to make sure that they are not stored in plain text. This is also used when comparing passwords when trying to log in.
+
+Access to admin's page:
+  Admins have access to the admins page, where they are able to remove user accounts as needed. Normal users will not have access to this page and the app will check to make sure the user is an admin before continuing. If they aren't an admin, the app will redirect them to the dashboard page, preventing them from proceeding. Currently my account is the only admin account, I would have to go in and manually add someone as an admin.
+
+SQL Injections:
+  Users could potentially inject SQL commands in the input, this should not happen. I made as many of the inputs as I could only take numbers or limit the amount of characters one could enter. Additionally, all other inputs are sanitized to prevent the injection.
+
+Access to the database:
+  Not really based on my app, but I did have to open up the connections for all IP addresses (0.0.0.0/0) because I couldn't find a static address for Heroku. I did change the username and password needed to access the remote database, which is good because I've been getting thousands of attempts from somewhere trying to access it...
