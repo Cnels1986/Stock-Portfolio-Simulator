@@ -10,7 +10,7 @@ import json
 import operator
 
 app = Flask(__name__)
-app.secret_key = "thisisthesecretkey2018"
+app.secret_key = ""
 mysql = MySQL()
 
 name = ''
@@ -18,10 +18,10 @@ id = ''
 info = ''
 
 # MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_DB'] = 'stocksdb'
-app.config['MYSQL_DATABASE_HOST'] = '35.196.70.93'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Eagles717'
+app.config['MYSQL_DATABASE_USER'] = ''
+app.config['MYSQL_DATABASE_DB'] = ''
+app.config['MYSQL_DATABASE_HOST'] = ''
+app.config['MYSQL_DATABASE_PASSWORD'] = ''
 mysql.init_app(app)
 
 conn = mysql.connect()
